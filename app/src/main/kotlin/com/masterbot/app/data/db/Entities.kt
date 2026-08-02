@@ -79,3 +79,11 @@ data class UserProgressEntity(
     val longestStreak: Int,
     val lastGoalMetEpochDay: Long?,
 )
+
+/** Single-row table (always id=0): display name + notification preference. */
+@Entity(tableName = "user_profile")
+data class UserProfileEntity(
+    @PrimaryKey val id: Int = 0,
+    val name: String,
+    val notificationsEnabled: Boolean,
+)

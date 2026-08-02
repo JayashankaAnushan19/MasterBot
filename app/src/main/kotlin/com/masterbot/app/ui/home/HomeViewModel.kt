@@ -15,7 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class TopicNode(val topicId: String, val title: String, val tier: MasteryTier)
+data class TopicNode(
+    val topicId: String,
+    val title: String,
+    val tier: MasteryTier,
+    val completed: Boolean,
+    val locked: Boolean,
+)
 data class PillarSection(val pillar: String, val topics: List<TopicNode>)
 
 sealed interface HomeUiState {
@@ -69,20 +75,33 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             masteryTierFor(moduleStates, reviewedCount, rules)
         }
 
+        // "Complete" (per the user's spec, right or wrong doesn't matter): every card in
+        // the topic has been answered at least once.
+        fun isTopicComplete(topicId: String): Boolean {
+            val topicCardIds = cardsByTopic[topicId].orEmpty().map { it.id }
+            if (topicCardIds.isEmpty()) return false
+            return topicCardIds.all { (states[it]?.repetitions ?: 0) > 0 }
+        }
+
         val pillars = topics
             .groupBy { it.pillar }
             .toSortedMap()
             .map { (pillar, topicsInPillar) ->
-                PillarSection(
-                    pillar = pillar,
-                    topics = topicsInPillar.sortedBy { it.id }.map { topic ->
-                        TopicNode(
-                            topicId = topic.id,
-                            title = prettifySlug(topic.topic),
-                            tier = tierByModule[topic.module] ?: MasteryTier.NONE,
-                        )
-                    },
-                )
+                val sortedTopics = topicsInPillar.sortedBy { it.id }
+                var previousComplete = true // first topic in a pillar is always unlocked
+                val nodes = sortedTopics.map { topic ->
+                    val completed = isTopicComplete(topic.id)
+                    val locked = !previousComplete
+                    previousComplete = completed
+                    TopicNode(
+                        topicId = topic.id,
+                        title = prettifySlug(topic.topic),
+                        tier = tierByModule[topic.module] ?: MasteryTier.NONE,
+                        completed = completed,
+                        locked = locked,
+                    )
+                }
+                PillarSection(pillar = pillar, topics = nodes)
             }
 
         val moduleTiers = tierByModule.values.toList()

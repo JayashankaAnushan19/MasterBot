@@ -46,6 +46,12 @@ interface MasterBotDao {
     @Upsert
     suspend fun upsertUserProgress(progress: UserProgressEntity)
 
+    @Query("SELECT * FROM user_profile WHERE id = 0")
+    suspend fun userProfile(): UserProfileEntity?
+
+    @Upsert
+    suspend fun upsertUserProfile(profile: UserProfileEntity)
+
     @Transaction
     suspend fun replaceContent(topics: List<TopicEntity>, cards: List<CardEntity>, seedStates: List<CardStateEntity>) {
         upsertTopics(topics)

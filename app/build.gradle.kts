@@ -15,7 +15,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 1
-        versionName = "0.1.0-stage4"
+        versionName = "0.3.0"
     }
 
     buildTypes {
@@ -80,6 +80,8 @@ dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
 
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r")
+
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
 

@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.masterbot.app.ui.home.HomeScreen
+import com.masterbot.app.ui.profile.ProfileScreen
 import com.masterbot.app.ui.review.ReviewScreen
 import com.masterbot.app.ui.review.ReviewViewModel
 import com.masterbot.app.ui.theme.MasterBotTheme
@@ -42,11 +43,12 @@ private fun MasterBotNavHost(application: Application) {
                 onStartTopic = { topicId ->
                     navController.navigate("review/${URLEncoder.encode(topicId, "UTF-8")}")
                 },
+                onOpenProfile = { navController.navigate("profile") },
             )
         }
         composable("review") {
             val viewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(application, topicId = null))
-            ReviewScreen(viewModel = viewModel)
+            ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
         }
         composable(
             "review/{topicId}",
@@ -55,7 +57,10 @@ private fun MasterBotNavHost(application: Application) {
             val encodedTopicId = backStackEntry.arguments?.getString("topicId")
             val topicId = encodedTopicId?.let { URLDecoder.decode(it, "UTF-8") }
             val viewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(application, topicId = topicId))
-            ReviewScreen(viewModel = viewModel)
+            ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
+        }
+        composable("profile") {
+            ProfileScreen(onBack = { navController.popBackStack() })
         }
     }
 }

@@ -13,14 +13,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,29 +49,47 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.masterbot.app.R
 import com.masterbot.engine.MasteryTier
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onStartTodayReview: () -> Unit,
     onStartTopic: (String) -> Unit,
+    onOpenProfile: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        when (val s = state) {
-            is HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-            is HomeUiState.SyncFailed -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Sync failed", style = MaterialTheme.typography.titleLarge)
-                    Spacer(Modifier.height(8.dp))
-                    Text(s.message, style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = viewModel::refresh) { Text("Retry") }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("MasterBot") },
+                actions = {
+                    IconButton(onClick = onOpenProfile) {
+                        Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            color = MaterialTheme.colorScheme.background,
+        ) {
+            when (val s = state) {
+                is HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
+                is HomeUiState.SyncFailed -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Sync failed", style = MaterialTheme.typography.titleLarge)
+                        Spacer(Modifier.height(8.dp))
+                        Text(s.message, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(16.dp))
+                        Button(onClick = viewModel::refresh) { Text("Retry") }
+                    }
+                }
+                is HomeUiState.Ready -> HomeReadyContent(s, onStartTodayReview, onStartTopic)
             }
-            is HomeUiState.Ready -> HomeReadyContent(s, onStartTodayReview, onStartTopic)
         }
     }
 }
@@ -85,16 +114,14 @@ private fun HomeReadyContent(
         }
 
         state.pillars.forEach { section ->
-            item {
-                Text(
-                    section.pillar.uppercase(),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                )
-            }
+            item { PillarHeader(section.pillar) }
             itemsIndexed(section.topics) { index, topic ->
-                TopicPathNode(index = index, node = topic, onClick = { onStartTopic(topic.topicId) })
+                TopicPathNode(
+                    index = index,
+                    node = topic,
+                    accent = pillarAccent(section.pillar),
+                    onClick = { if (!topic.locked) onStartTopic(topic.topicId) },
+                )
             }
             item { Spacer(Modifier.height(12.dp)) }
         }
@@ -131,6 +158,44 @@ private fun StatHeader(state: HomeUiState.Ready) {
     }
 }
 
+private data class PillarStyle(val label: String, val glyph: String, val accent: Color)
+
+private val pillarStyles = mapOf(
+    "it" to PillarStyle("IT", "💻", Color(0xFF4FC3F7)),
+    "mechanical" to PillarStyle("Mechanical", "⚙️", Color(0xFFFFB74D)),
+    "electronic" to PillarStyle("Electronic", "🔌", Color(0xFFBA68C8)),
+)
+
+private fun pillarAccent(pillar: String): Color = pillarStyles[pillar]?.accent ?: Color(0xFF00E5A0)
+
+@Composable
+private fun PillarHeader(pillar: String) {
+    val style = pillarStyles[pillar]
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background((style?.accent ?: Color.Gray).copy(alpha = 0.2f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(style?.glyph ?: "•", style = MaterialTheme.typography.labelSmall)
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            style?.label ?: pillar.replaceFirstChar(Char::uppercase),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = style?.accent ?: MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
 private val tierColors = mapOf(
     MasteryTier.NONE to Color(0xFF3A4552),
     MasteryTier.BRONZE to Color(0xFFCD7F32),
@@ -139,15 +204,15 @@ private val tierColors = mapOf(
 )
 
 @Composable
-private fun TopicPathNode(index: Int, node: TopicNode, onClick: () -> Unit) {
+private fun TopicPathNode(index: Int, node: TopicNode, accent: Color, onClick: () -> Unit) {
     val alignment = when (index % 3) {
         0 -> Alignment.Start
         1 -> Alignment.CenterHorizontally
         else -> Alignment.End
     }
-    val color = tierColors.getValue(node.tier)
+    val badgeColor = if (node.locked) Color(0xFF2A323C) else tierColors.getValue(node.tier)
 
-    Box(modifier = Modifier.fillMaxWidth().height(84.dp)) {
+    Box(modifier = Modifier.fillMaxWidth().height(96.dp)) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val x = size.width / 2f
             drawLine(
@@ -158,7 +223,7 @@ private fun TopicPathNode(index: Int, node: TopicNode, onClick: () -> Unit) {
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f)),
             )
         }
-        Column(
+        Card(
             modifier = Modifier
                 .align(
                     when (alignment) {
@@ -167,23 +232,55 @@ private fun TopicPathNode(index: Int, node: TopicNode, onClick: () -> Unit) {
                         else -> Alignment.Center
                     },
                 )
-                .padding(horizontal = 32.dp)
-                .clickable(onClick = onClick),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = 24.dp)
+                .clickable(enabled = !node.locked, onClick = onClick),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (node.locked) {
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                } else {
+                    MaterialTheme.colorScheme.surface
+                },
+            ),
+            border = if (!node.locked) {
+                androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = 0.5f))
+            } else {
+                null
+            },
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(color),
-                contentAlignment = Alignment.Center,
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(badgeGlyph(node.tier), style = MaterialTheme.typography.titleMedium)
+                Box(
+                    modifier = Modifier.size(44.dp).clip(CircleShape).background(badgeColor),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(if (node.locked) "🔒" else badgeGlyph(node.tier), style = MaterialTheme.typography.titleSmall)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(
+                        node.title,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (node.locked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    )
+                    Text(statusLabel(node), style = MaterialTheme.typography.labelSmall)
+                }
             }
-            Spacer(Modifier.height(4.dp))
-            Text(node.title, style = MaterialTheme.typography.labelMedium)
         }
     }
+}
+
+private fun statusLabel(node: TopicNode): String = when {
+    node.locked -> "Locked"
+    node.tier != MasteryTier.NONE -> node.tier.name.lowercase().replaceFirstChar(Char::uppercase)
+    node.completed -> "In progress"
+    else -> "Not started"
 }
 
 private fun badgeGlyph(tier: MasteryTier): String = when (tier) {
