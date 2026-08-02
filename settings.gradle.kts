@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 rootProject.name = "MasterBot"
 
 include(":engine")
+include(":app")
