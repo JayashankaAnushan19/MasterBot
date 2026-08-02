@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Specialist: dual-ring core, wider frame -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#00E5A0"
+        android:pathData="M54,10 L92,38 L92,78 L54,106 L16,78 L16,38 Z" />
+    <path
+        android:fillColor="#101820"
+        android:pathData="M54,30 L74,44 L74,70 L54,84 L34,70 L34,44 Z" />
+    <path
+        android:fillColor="#00E5A0"
+        android:pathData="M54,44 L64,51 L64,63 L54,70 L44,63 L44,51 Z" />
+    <path
+        android:fillColor="#101820"
+        android:pathData="M54,52 L58,55 L58,59 L54,62 L50,59 L50,55 Z" />
+</vector>

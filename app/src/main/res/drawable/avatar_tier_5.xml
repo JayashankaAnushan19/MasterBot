@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Master: full glow, layered core, corner accents -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <path
+        android:fillColor="#00E5A0"
+        android:fillAlpha="0.35"
+        android:pathData="M60,4 L108,38 L108,88 L60,116 L12,88 L12,38 Z" />
+    <path
+        android:fillColor="#00E5A0"
+        android:pathData="M60,16 L94,40 L94,84 L60,108 L26,84 L26,40 Z" />
+    <path
+        android:fillColor="#101820"
+        android:pathData="M60,36 L80,50 L80,76 L60,90 L40,76 L40,50 Z" />
+    <path
+        android:fillColor="#00E5A0"
+        android:pathData="M60,50 L70,57 L70,69 L60,76 L50,69 L50,57 Z" />
+    <path
+        android:fillColor="#101820"
+        android:pathData="M60,58 L64,61 L64,65 L60,68 L56,65 L56,61 Z" />
+</vector>

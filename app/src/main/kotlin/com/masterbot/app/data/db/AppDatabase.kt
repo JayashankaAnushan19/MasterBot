@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [TopicEntity::class, CardEntity::class, CardStateEntity::class],
-    version = 1,
+    entities = [TopicEntity::class, CardEntity::class, CardStateEntity::class, UserProgressEntity::class],
+    version = 2,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -23,7 +23,11 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "masterbot.db",
-                ).build().also { instance = it }
+                )
+                    // No shipped release yet, so no real user data to protect across
+                    // schema bumps -- once Stage 5 ships, replace with real migrations.
+                    .fallbackToDestructiveMigration()
+                    .build().also { instance = it }
             }
     }
 }

@@ -1,5 +1,9 @@
 package com.masterbot.app.ui.review
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -103,10 +107,23 @@ private fun ReadyContent(
     val card = state.queue[state.index]
 
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text(
-            "${state.index + 1} / ${state.queue.size}",
-            style = MaterialTheme.typography.labelLarge,
-        )
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(
+                "${state.index + 1} / ${state.queue.size}",
+                style = MaterialTheme.typography.labelLarge,
+            )
+            AnimatedVisibility(
+                visible = state.lastCoinsEarned != null,
+                enter = fadeIn() + slideInVertically(),
+                exit = fadeOut(),
+            ) {
+                Text(
+                    "+${state.lastCoinsEarned ?: 0} 🪙",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
         Spacer(Modifier.height(12.dp))
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {

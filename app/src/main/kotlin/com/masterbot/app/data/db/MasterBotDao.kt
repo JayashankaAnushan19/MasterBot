@@ -31,11 +31,20 @@ interface MasterBotDao {
     @Query("SELECT * FROM cards")
     suspend fun allCards(): List<CardEntity>
 
+    @Query("SELECT * FROM cards WHERE topicId = :topicId")
+    suspend fun cardsForTopic(topicId: String): List<CardEntity>
+
     @Query("SELECT * FROM card_states")
     suspend fun allCardStates(): List<CardStateEntity>
 
     @Query("SELECT COUNT(*) FROM cards")
     suspend fun cardCount(): Int
+
+    @Query("SELECT * FROM user_progress WHERE id = 0")
+    suspend fun userProgress(): UserProgressEntity?
+
+    @Upsert
+    suspend fun upsertUserProgress(progress: UserProgressEntity)
 
     @Transaction
     suspend fun replaceContent(topics: List<TopicEntity>, cards: List<CardEntity>, seedStates: List<CardStateEntity>) {

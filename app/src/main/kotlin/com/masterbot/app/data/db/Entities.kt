@@ -65,3 +65,17 @@ data class CardStateEntity(
     val lastReviewedEpochDay: Long?,
     val dueEpochDay: Long,
 )
+
+/**
+ * Single-row table (always id=0) tracking coins/streak, per
+ * [com.masterbot.engine.RewardsEngine]. Updated by ReviewViewModel after
+ * each answer and once per day when the daily goal is first met.
+ */
+@Entity(tableName = "user_progress")
+data class UserProgressEntity(
+    @PrimaryKey val id: Int = 0,
+    val totalCoins: Int,
+    val currentStreak: Int,
+    val longestStreak: Int,
+    val lastGoalMetEpochDay: Long?,
+)

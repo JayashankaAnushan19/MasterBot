@@ -2,14 +2,19 @@ package com.masterbot.app.ui.review
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.masterbot.app.data.db.AppDatabase
+import com.masterbot.app.data.db.CardEntity
 import com.masterbot.app.data.db.CardStateEntity
+import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.RepoSync
 import com.masterbot.engine.AnswerEvent
 import com.masterbot.engine.CardReviewState
 import com.masterbot.engine.DailyQueueBuilder
 import com.masterbot.engine.ModuleHealth
+import com.masterbot.engine.RewardsEngine
 import com.masterbot.engine.SrsEngine
 import com.masterbot.engine.model.AdaptationRules
 import com.masterbot.engine.model.Card
@@ -24,16 +29,28 @@ import java.time.LocalDate
 sealed interface ReviewUiState {
     data object Syncing : ReviewUiState
     data class SyncFailed(val message: String) : ReviewUiState
-    data class Ready(val queue: List<Card>, val index: Int, val revealed: Boolean) : ReviewUiState
+    data class Ready(
+        val queue: List<Card>,
+        val index: Int,
+        val revealed: Boolean,
+        val lastCoinsEarned: Int? = null,
+    ) : ReviewUiState
 
     /** Today's goal (rules.daily_task_generation) is met, but more cards are available. */
     data class GoalReached(val reviewedToday: Int) : ReviewUiState
 
-    /** Nothing left in the whole deck: no due reviews, no never-reviewed cards. */
+    /** Nothing left to practice right now (whole deck for "today", or this one topic). */
     data class AllCaughtUp(val reviewedToday: Int) : ReviewUiState
 }
 
-class ReviewViewModel(application: Application) : AndroidViewModel(application) {
+/**
+ * @param topicId null = today's goal-based queue (daily review flow). Set = practice
+ *   every card in that one topic, ignoring due-dates/goal caps (deliberate practice).
+ */
+class ReviewViewModel(
+    application: Application,
+    private val topicId: String? = null,
+) : AndroidViewModel(application) {
 
     private val dao = AppDatabase.get(application).dao()
     private val repoSync = RepoSync(application)
@@ -43,8 +60,11 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
 
     private lateinit var engine: SrsEngine
     private lateinit var rules: AdaptationRules
+    private lateinit var progress: UserProgressEntity
     private var cardShownAtMillis: Long = 0L
     private var reviewedToday: Int = 0
+    private var originalGoalSize: Int = 0
+    private var goalCreditedThisSession: Boolean = false
     private val answeredIdsToday = mutableSetOf<String>()
 
     init {
@@ -60,15 +80,22 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             when (val result = repoSync.syncAndLoad()) {
                 is RepoSync.Result.Failure -> _uiState.value = ReviewUiState.SyncFailed(result.message)
-                is RepoSync.Result.Success -> loadTodaysQueue()
+                is RepoSync.Result.Success -> {
+                    rules = repoSync.currentRules()
+                    engine = SrsEngine(rules)
+                    progress = dao.userProgress() ?: UserProgressEntity(
+                        totalCoins = 0,
+                        currentStreak = 0,
+                        longestStreak = 0,
+                        lastGoalMetEpochDay = null,
+                    )
+                    if (topicId != null) loadTopicQueue(topicId) else loadTodaysQueue()
+                }
             }
         }
     }
 
     private suspend fun loadTodaysQueue() {
-        rules = repoSync.currentRules()
-        engine = SrsEngine(rules)
-
         val cards = dao.allCards()
         val topics = dao.allTopics().associateBy { it.id }
         val states = dao.allCardStates().associateBy { it.cardId }
@@ -96,7 +123,17 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
         )
 
         val combined = queue.reviewCards + queue.newCards
+        originalGoalSize = combined.size
         showQueueOrFinish(combined)
+    }
+
+    /** Deliberate single-topic practice: every card in the topic not already answered today. */
+    private suspend fun loadTopicQueue(topicId: String) {
+        val cards = dao.cardsForTopic(topicId)
+            .filter { it.id !in answeredIdsToday }
+            .map { it.toEngineCard() }
+        originalGoalSize = 0 // topic practice never counts toward the daily-goal streak
+        showQueueOrFinish(cards)
     }
 
     private fun showQueueOrFinish(queue: List<Card>) {
@@ -108,10 +145,14 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Called when a queue (today's goal, or a "keep practicing" batch) runs out. */
+    /** Called when a queue (today's goal, a topic practice set, or a "keep practicing" batch) runs out. */
     private fun finishSession() {
         viewModelScope.launch {
-            val remaining = remainingEligibleCards()
+            val remaining = if (topicId != null) {
+                dao.cardsForTopic(topicId).filter { it.id !in answeredIdsToday }.map { it.toEngineCard() }
+            } else {
+                remainingEligibleCards()
+            }
             _uiState.value = if (remaining.isEmpty()) {
                 ReviewUiState.AllCaughtUp(reviewedToday)
             } else {
@@ -123,7 +164,12 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
     /** More practice beyond today's goal: every due-review or never-reviewed card not already answered today, no cap. */
     fun keepPracticing() {
         viewModelScope.launch {
-            showQueueOrFinish(remainingEligibleCards())
+            val more = if (topicId != null) {
+                dao.cardsForTopic(topicId).filter { it.id !in answeredIdsToday }.map { it.toEngineCard() }
+            } else {
+                remainingEligibleCards()
+            }
+            showQueueOrFinish(more)
         }
     }
 
@@ -139,7 +185,7 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
                 state == null || state.repetitions == 0 || state.dueEpochDay <= today
             }
             .sortedWith(
-                compareBy<com.masterbot.app.data.db.CardEntity> { states[it.id]?.dueEpochDay ?: today }
+                compareBy<CardEntity> { states[it.id]?.dueEpochDay ?: today }
                     .thenByDescending { states[it.id]?.weight ?: it.weightSeed }
             )
             .map { it.toEngineCard() }
@@ -147,7 +193,7 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
 
     fun reveal() {
         val state = _uiState.value as? ReviewUiState.Ready ?: return
-        _uiState.value = state.copy(revealed = true)
+        _uiState.value = state.copy(revealed = true, lastCoinsEarned = null)
     }
 
     fun answer(correct: Boolean) {
@@ -167,14 +213,42 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
             answeredIdsToday += card.id
             reviewedToday += 1
 
+            val fast = responseTimeMs < rules.weighting.slowResponseThresholdMs
+            val multiplier = RewardsEngine.streakMultiplier(progress.currentStreak, rules.rewards)
+            val coinsEarned = RewardsEngine.coinsForAnswer(correct, fast, multiplier, rules.rewards)
+            if (coinsEarned > 0) {
+                progress = progress.copy(totalCoins = progress.totalCoins + coinsEarned)
+                dao.upsertUserProgress(progress)
+            }
+
+            if (topicId == null && !goalCreditedThisSession && reviewedToday >= originalGoalSize && originalGoalSize > 0) {
+                goalCreditedThisSession = true
+                val newStreak = RewardsEngine.updatedStreak(progress.currentStreak, progress.lastGoalMetEpochDay, today)
+                progress = progress.copy(
+                    currentStreak = newStreak,
+                    longestStreak = maxOf(progress.longestStreak, newStreak),
+                    lastGoalMetEpochDay = today,
+                )
+                dao.upsertUserProgress(progress)
+            }
+
             val nextIndex = state.index + 1
             if (nextIndex >= state.queue.size) {
                 finishSession()
             } else {
                 cardShownAtMillis = System.currentTimeMillis()
-                _uiState.value = state.copy(index = nextIndex, revealed = false)
+                _uiState.value = state.copy(index = nextIndex, revealed = false, lastCoinsEarned = coinsEarned.takeIf { it > 0 })
             }
         }
+    }
+
+    class Factory(
+        private val application: Application,
+        private val topicId: String?,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            ReviewViewModel(application, topicId) as T
     }
 }
 
@@ -198,7 +272,7 @@ private fun CardReviewState.toEntity() = CardStateEntity(
     dueEpochDay = dueEpochDay,
 )
 
-private fun com.masterbot.app.data.db.CardEntity.toEngineCard() = Card(
+private fun CardEntity.toEngineCard() = Card(
     id = id,
     type = type,
     question = question,
