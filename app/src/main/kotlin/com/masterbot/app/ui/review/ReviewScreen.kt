@@ -176,10 +176,8 @@ private fun SessionAnswerRow(answer: SessionAnswer) {
                 Spacer(Modifier.width(8.dp))
                 Text(answer.question, style = MaterialTheme.typography.bodyLarge)
             }
-            if (!answer.wasCorrect) {
-                Spacer(Modifier.height(8.dp))
-                Text("Correct answer: ${answer.correctAnswer}", style = MaterialTheme.typography.bodyMedium)
-            }
+            Spacer(Modifier.height(8.dp))
+            Text("Answer: ${answer.correctAnswer}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

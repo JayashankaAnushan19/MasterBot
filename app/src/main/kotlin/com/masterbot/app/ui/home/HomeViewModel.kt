@@ -111,14 +111,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val tierByModule = topicsByModule.mapValues { (_, topicsInModule) ->
             val moduleCardIds = topicsInModule.flatMap { t -> cardsByTopic[t.id].orEmpty().map { it.id } }
             val moduleStates = moduleCardIds.mapNotNull { states[it] }
-            val reviewedCount = moduleStates.count { it.repetitions > 0 }
+            // lastReviewedEpochDay, not repetitions: an incorrect answer resets repetitions
+            // to 0 (SrsEngine relearning behavior) even though the card was clearly attempted.
+            val reviewedCount = moduleStates.count { it.lastReviewedEpochDay != null }
             masteryTierFor(moduleStates, reviewedCount, rules)
         }
 
         // "Complete" (per the user's spec, right or wrong doesn't matter): every card in
-        // the topic has been answered at least once.
+        // the topic has been answered at least once. Same lastReviewedEpochDay reasoning
+        // as above -- repetitions gets reset to 0 by a wrong answer, so it can't be used
+        // as an "attempted" signal here.
         fun answeredCount(topicId: String): Int =
-            cardsByTopic[topicId].orEmpty().count { (states[it.id]?.repetitions ?: 0) > 0 }
+            cardsByTopic[topicId].orEmpty().count { states[it.id]?.lastReviewedEpochDay != null }
         fun totalCount(topicId: String): Int = cardsByTopic[topicId].orEmpty().size
         fun isTopicComplete(topicId: String): Boolean {
             val total = totalCount(topicId)
