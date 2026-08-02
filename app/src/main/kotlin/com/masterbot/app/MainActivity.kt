@@ -22,8 +22,6 @@ import com.masterbot.app.ui.profile.ProfileScreen
 import com.masterbot.app.ui.review.ReviewScreen
 import com.masterbot.app.ui.review.ReviewViewModel
 import com.masterbot.app.ui.theme.MasterBotTheme
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +51,7 @@ private fun MasterBotNavHost(application: Application) {
             HomeScreen(
                 onStartTodayReview = { navController.navigate("review") },
                 onStartTopic = { topicId ->
-                    navController.navigate("review/${URLEncoder.encode(topicId, "UTF-8")}")
+                    navController.navigate("review/${encodeTopicId(topicId)}")
                 },
                 onOpenProfile = { navController.navigate("profile") },
             )
@@ -67,7 +65,7 @@ private fun MasterBotNavHost(application: Application) {
             arguments = listOf(navArgument("topicId") { type = NavType.StringType }),
         ) { backStackEntry ->
             val encodedTopicId = backStackEntry.arguments?.getString("topicId")
-            val topicId = encodedTopicId?.let { URLDecoder.decode(it, "UTF-8") }
+            val topicId = encodedTopicId?.let { decodeTopicId(it) }
             val viewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(application, topicId = topicId))
             ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
         }
@@ -76,3 +74,11 @@ private fun MasterBotNavHost(application: Application) {
         }
     }
 }
+
+// Topic ids look like "it/programming/ros2-nodes-topics". Navigation-Compose's route
+// matcher splits/decodes path segments on '/' internally, so URL-encoding a slash and
+// packing it into a single {topicId} segment is unreliable -- it can extract the wrong
+// argument. '~' never appears in a topic id slug, so this substitution is unambiguous
+// and never touches Navigation's own URI parsing at all.
+private fun encodeTopicId(topicId: String) = topicId.replace("/", "~")
+private fun decodeTopicId(encoded: String) = encoded.replace("~", "/")

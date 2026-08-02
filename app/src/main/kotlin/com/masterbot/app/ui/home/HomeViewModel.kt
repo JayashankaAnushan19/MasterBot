@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.CardStateEntity
+import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.RepoSync
 import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.CardReviewState
@@ -76,6 +77,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun retrySync() = syncCoordinator.applyPendingUpdate()
     fun pullUpdate() = syncCoordinator.applyPendingUpdate()
     fun dismissUpdate() = syncCoordinator.dismissUpdate()
+
+    /** Resets one topic back to "not started" -- deletes its cards' review state only. */
+    fun resetTopic(topicId: String) {
+        viewModelScope.launch {
+            dao.deleteCardStatesForTopic(topicId)
+            loadDashboard()
+        }
+    }
+
+    /** Resets all learning progress (every card's review state, coins, streaks). Leaves
+     * content and the user's name/notification prefs untouched. */
+    fun resetAllProgress() {
+        viewModelScope.launch {
+            dao.deleteAllCardStates()
+            dao.upsertUserProgress(
+                UserProgressEntity(totalCoins = 0, currentStreak = 0, longestStreak = 0, lastGoalMetEpochDay = null),
+            )
+            loadDashboard()
+        }
+    }
 
     private suspend fun loadDashboard() {
         val rules = repoSync.currentRules().moduleHealth

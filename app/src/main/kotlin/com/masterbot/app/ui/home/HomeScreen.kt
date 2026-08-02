@@ -6,8 +6,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -127,7 +131,13 @@ fun HomeScreen(
                         Button(onClick = viewModel::retrySync) { Text("Retry") }
                     }
                 }
-                is HomeUiState.Ready -> HomeReadyContent(s, onStartTodayReview, onStartTopic)
+                is HomeUiState.Ready -> HomeReadyContent(
+                    state = s,
+                    onStartTodayReview = onStartTodayReview,
+                    onStartTopic = onStartTopic,
+                    onResetTopic = viewModel::resetTopic,
+                    onResetAll = viewModel::resetAllProgress,
+                )
             }
         }
     }
@@ -166,7 +176,46 @@ private fun HomeReadyContent(
     state: HomeUiState.Ready,
     onStartTodayReview: () -> Unit,
     onStartTopic: (String) -> Unit,
+    onResetTopic: (String) -> Unit,
+    onResetAll: () -> Unit,
 ) {
+    var topicPendingReset by remember { mutableStateOf<TopicNode?>(null) }
+    var confirmResetAll by remember { mutableStateOf(false) }
+
+    topicPendingReset?.let { topic ->
+        AlertDialog(
+            onDismissRequest = { topicPendingReset = null },
+            title = { Text("Reset this topic?") },
+            text = { Text("\"${topic.title}\" goes back to Not started. This can't be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onResetTopic(topic.topicId)
+                    topicPendingReset = null
+                }) { Text("Reset") }
+            },
+            dismissButton = {
+                TextButton(onClick = { topicPendingReset = null }) { Text("Cancel") }
+            },
+        )
+    }
+
+    if (confirmResetAll) {
+        AlertDialog(
+            onDismissRequest = { confirmResetAll = false },
+            title = { Text("Reset all progress?") },
+            text = { Text("Every topic goes back to Not started, and coins/streak reset to 0. This can't be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onResetAll()
+                    confirmResetAll = false
+                }) { Text("Reset everything") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmResetAll = false }) { Text("Cancel") }
+            },
+        )
+    }
+
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             StatHeader(state)
@@ -177,7 +226,21 @@ private fun HomeReadyContent(
             ) {
                 Text("Start today's review")
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(8.dp))
+            TextButton(
+                onClick = { confirmResetAll = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Reset all progress", style = MaterialTheme.typography.labelMedium)
+            }
+            Text(
+                "Tip: long-press a topic below to reset just that one",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(16.dp))
         }
 
         state.pillars.forEach { section ->
@@ -188,6 +251,7 @@ private fun HomeReadyContent(
                     node = topic,
                     accent = pillarAccent(section.pillar),
                     onClick = { if (!topic.locked) onStartTopic(topic.topicId) },
+                    onLongClick = { if (!topic.locked) topicPendingReset = topic },
                 )
             }
             item { Spacer(Modifier.height(12.dp)) }
@@ -270,8 +334,9 @@ private val tierColors = mapOf(
     MasteryTier.GOLD to Color(0xFFFFD700),
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TopicPathNode(index: Int, node: TopicNode, accent: Color, onClick: () -> Unit) {
+private fun TopicPathNode(index: Int, node: TopicNode, accent: Color, onClick: () -> Unit, onLongClick: () -> Unit) {
     val alignment = when (index % 3) {
         0 -> Alignment.Start
         1 -> Alignment.CenterHorizontally
@@ -300,7 +365,7 @@ private fun TopicPathNode(index: Int, node: TopicNode, accent: Color, onClick: (
                     },
                 )
                 .padding(horizontal = 24.dp)
-                .clickable(enabled = !node.locked, onClick = onClick),
+                .combinedClickable(enabled = !node.locked, onClick = onClick, onLongClick = onLongClick),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (node.locked) {

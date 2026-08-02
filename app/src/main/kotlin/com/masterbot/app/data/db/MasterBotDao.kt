@@ -37,6 +37,15 @@ interface MasterBotDao {
     @Query("SELECT * FROM card_states")
     suspend fun allCardStates(): List<CardStateEntity>
 
+    // Every read path in this app already treats a missing CardStateEntity row as
+    // "never reviewed" (DailyQueueBuilder, ReviewViewModel's initialState() fallback,
+    // HomeViewModel's repetitions ?: 0), so deleting rows is a complete, correct reset.
+    @Query("DELETE FROM card_states")
+    suspend fun deleteAllCardStates()
+
+    @Query("DELETE FROM card_states WHERE cardId IN (SELECT id FROM cards WHERE topicId = :topicId)")
+    suspend fun deleteCardStatesForTopic(topicId: String)
+
     @Query("SELECT COUNT(*) FROM cards")
     suspend fun cardCount(): Int
 

@@ -43,7 +43,12 @@ sealed interface ReviewUiState {
 
     /** Nothing left to practice right now (whole deck for "today", or this one topic). */
     data class AllCaughtUp(val reviewedToday: Int) : ReviewUiState
+
+    /** Shown once, right before the true end (AllCaughtUp) -- a recap of this visit's answers. */
+    data class SessionSummary(val answers: List<SessionAnswer>, val reviewedToday: Int) : ReviewUiState
 }
+
+data class SessionAnswer(val question: String, val correctAnswer: String, val wasCorrect: Boolean)
 
 /**
  * @param topicId null = today's goal-based queue (daily review flow). Set = practice
@@ -69,6 +74,8 @@ class ReviewViewModel(
     private var originalGoalSize: Int = 0
     private var goalCreditedThisSession: Boolean = false
     private val answeredIdsToday = mutableSetOf<String>()
+    private val sessionAnswers = mutableListOf<SessionAnswer>()
+    private var pendingFinalState: ReviewUiState? = null
 
     init {
         // No network sync triggered here -- SyncCoordinator (app-scoped) owns that. This
@@ -169,12 +176,25 @@ class ReviewViewModel(
             } else {
                 remainingEligibleCards()
             }
-            _uiState.value = if (remaining.isEmpty()) {
-                ReviewUiState.AllCaughtUp(reviewedToday)
+            if (remaining.isEmpty()) {
+                // The true end: recap what was answered this visit before showing it,
+                // unless there's nothing to recap (e.g. opened an already-finished topic).
+                val final = ReviewUiState.AllCaughtUp(reviewedToday)
+                _uiState.value = if (sessionAnswers.isEmpty()) {
+                    final
+                } else {
+                    pendingFinalState = final
+                    ReviewUiState.SessionSummary(sessionAnswers.toList(), reviewedToday)
+                }
             } else {
-                ReviewUiState.GoalReached(reviewedToday)
+                // GoalReached: more is available via "keep practicing", so no recap yet.
+                _uiState.value = ReviewUiState.GoalReached(reviewedToday)
             }
         }
+    }
+
+    fun continueFromSummary() {
+        _uiState.value = pendingFinalState ?: ReviewUiState.AllCaughtUp(reviewedToday)
     }
 
     /** More practice beyond today's goal: every due-review or never-reviewed card not already answered today, no cap. */
@@ -228,6 +248,7 @@ class ReviewViewModel(
             dao.upsertCardState(updated.toEntity())
             answeredIdsToday += card.id
             reviewedToday += 1
+            sessionAnswers += SessionAnswer(question = card.question, correctAnswer = card.answer, wasCorrect = correct)
 
             val fast = responseTimeMs < rules.weighting.slowResponseThresholdMs
             val multiplier = RewardsEngine.streakMultiplier(progress.currentStreak, rules.rewards)

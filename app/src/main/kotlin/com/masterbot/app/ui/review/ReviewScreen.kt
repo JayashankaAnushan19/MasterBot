@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -33,6 +35,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,6 +77,7 @@ fun ReviewScreen(onBack: () -> Unit, viewModel: ReviewViewModel = viewModel()) {
                 is ReviewUiState.SyncFailed -> SyncFailedContent(message = s.message, onRetry = viewModel::retry)
                 is ReviewUiState.Ready -> ReadyContent(state = s, onReveal = viewModel::reveal, onAnswer = viewModel::answer)
                 is ReviewUiState.GoalReached -> GoalReachedContent(reviewedToday = s.reviewedToday, onKeepPracticing = viewModel::keepPracticing)
+                is ReviewUiState.SessionSummary -> SessionSummaryContent(answers = s.answers, onContinue = viewModel::continueFromSummary)
                 is ReviewUiState.AllCaughtUp -> AllCaughtUpContent(reviewedToday = s.reviewedToday)
             }
         }
@@ -130,6 +134,52 @@ private fun GoalReachedContent(reviewedToday: Int, onKeepPracticing: () -> Unit)
             Text("Reviewed $reviewedToday cards today.", style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(20.dp))
             Button(onClick = onKeepPracticing) { Text("Keep practicing") }
+        }
+    }
+}
+
+@Composable
+private fun SessionSummaryContent(answers: List<SessionAnswer>, onContinue: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val correctCount = answers.count { it.wasCorrect }
+            Text("This session: $correctCount/${answers.size} correct", style = MaterialTheme.typography.titleMedium)
+            TextButton(onClick = onContinue) { Text("Skip") }
+        }
+
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(answers) { answer -> SessionAnswerRow(answer) }
+        }
+
+        Button(
+            onClick = onContinue,
+            modifier = Modifier.fillMaxWidth().padding(24.dp),
+        ) {
+            Text("Continue")
+        }
+    }
+}
+
+@Composable
+private fun SessionAnswerRow(answer: SessionAnswer) {
+    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.Top) {
+                Text(if (answer.wasCorrect) "✓" else "✗", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.width(8.dp))
+                Text(answer.question, style = MaterialTheme.typography.bodyLarge)
+            }
+            if (!answer.wasCorrect) {
+                Spacer(Modifier.height(8.dp))
+                Text("Correct answer: ${answer.correctAnswer}", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
