@@ -25,7 +25,12 @@ sealed interface ReviewUiState {
     data object Syncing : ReviewUiState
     data class SyncFailed(val message: String) : ReviewUiState
     data class Ready(val queue: List<Card>, val index: Int, val revealed: Boolean) : ReviewUiState
-    data class Done(val reviewed: Int) : ReviewUiState
+
+    /** Today's goal (rules.daily_task_generation) is met, but more cards are available. */
+    data class GoalReached(val reviewedToday: Int) : ReviewUiState
+
+    /** Nothing left in the whole deck: no due reviews, no never-reviewed cards. */
+    data class AllCaughtUp(val reviewedToday: Int) : ReviewUiState
 }
 
 class ReviewViewModel(application: Application) : AndroidViewModel(application) {
@@ -39,6 +44,8 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
     private lateinit var engine: SrsEngine
     private lateinit var rules: AdaptationRules
     private var cardShownAtMillis: Long = 0L
+    private var reviewedToday: Int = 0
+    private val answeredIdsToday = mutableSetOf<String>()
 
     init {
         runSync()
@@ -89,12 +96,53 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
         )
 
         val combined = queue.reviewCards + queue.newCards
-        if (combined.isEmpty()) {
-            _uiState.value = ReviewUiState.Done(reviewed = 0)
+        showQueueOrFinish(combined)
+    }
+
+    private fun showQueueOrFinish(queue: List<Card>) {
+        if (queue.isEmpty()) {
+            finishSession()
         } else {
             cardShownAtMillis = System.currentTimeMillis()
-            _uiState.value = ReviewUiState.Ready(queue = combined, index = 0, revealed = false)
+            _uiState.value = ReviewUiState.Ready(queue = queue, index = 0, revealed = false)
         }
+    }
+
+    /** Called when a queue (today's goal, or a "keep practicing" batch) runs out. */
+    private fun finishSession() {
+        viewModelScope.launch {
+            val remaining = remainingEligibleCards()
+            _uiState.value = if (remaining.isEmpty()) {
+                ReviewUiState.AllCaughtUp(reviewedToday)
+            } else {
+                ReviewUiState.GoalReached(reviewedToday)
+            }
+        }
+    }
+
+    /** More practice beyond today's goal: every due-review or never-reviewed card not already answered today, no cap. */
+    fun keepPracticing() {
+        viewModelScope.launch {
+            showQueueOrFinish(remainingEligibleCards())
+        }
+    }
+
+    private suspend fun remainingEligibleCards(): List<Card> {
+        val cards = dao.allCards()
+        val states = dao.allCardStates().associateBy { it.cardId }
+        val today = LocalDate.now().toEpochDay()
+
+        return cards
+            .filter { it.id !in answeredIdsToday }
+            .filter { card ->
+                val state = states[card.id]
+                state == null || state.repetitions == 0 || state.dueEpochDay <= today
+            }
+            .sortedWith(
+                compareBy<com.masterbot.app.data.db.CardEntity> { states[it.id]?.dueEpochDay ?: today }
+                    .thenByDescending { states[it.id]?.weight ?: it.weightSeed }
+            )
+            .map { it.toEngineCard() }
     }
 
     fun reveal() {
@@ -116,13 +164,15 @@ class ReviewViewModel(application: Application) : AndroidViewModel(application) 
                 AnswerEvent(card.id, correct = correct, responseTimeMs = responseTimeMs, answeredEpochDay = today),
             )
             dao.upsertCardState(updated.toEntity())
+            answeredIdsToday += card.id
+            reviewedToday += 1
 
             val nextIndex = state.index + 1
-            cardShownAtMillis = System.currentTimeMillis()
-            _uiState.value = if (nextIndex >= state.queue.size) {
-                ReviewUiState.Done(reviewed = state.queue.size)
+            if (nextIndex >= state.queue.size) {
+                finishSession()
             } else {
-                state.copy(index = nextIndex, revealed = false)
+                cardShownAtMillis = System.currentTimeMillis()
+                _uiState.value = state.copy(index = nextIndex, revealed = false)
             }
         }
     }

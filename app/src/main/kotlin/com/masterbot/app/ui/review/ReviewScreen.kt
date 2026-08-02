@@ -37,7 +37,8 @@ fun ReviewScreen(viewModel: ReviewViewModel = viewModel()) {
             is ReviewUiState.Syncing -> SyncingContent()
             is ReviewUiState.SyncFailed -> SyncFailedContent(message = s.message, onRetry = viewModel::retry)
             is ReviewUiState.Ready -> ReadyContent(state = s, onReveal = viewModel::reveal, onAnswer = viewModel::answer)
-            is ReviewUiState.Done -> DoneContent(reviewed = s.reviewed)
+            is ReviewUiState.GoalReached -> GoalReachedContent(reviewedToday = s.reviewedToday, onKeepPracticing = viewModel::keepPracticing)
+            is ReviewUiState.AllCaughtUp -> AllCaughtUpContent(reviewedToday = s.reviewedToday)
         }
     }
 }
@@ -67,13 +68,26 @@ private fun SyncFailedContent(message: String, onRetry: () -> Unit) {
 }
 
 @Composable
-private fun DoneContent(reviewed: Int) {
+private fun GoalReachedContent(reviewedToday: Int, onKeepPracticing: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Daily goal reached 🔥", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(8.dp))
+            Text("Reviewed $reviewedToday cards today.", style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(20.dp))
+            Button(onClick = onKeepPracticing) { Text("Keep practicing") }
+        }
+    }
+}
+
+@Composable
+private fun AllCaughtUpContent(reviewedToday: Int) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Queue clear 🔥", style = MaterialTheme.typography.headlineSmall)
+            Text("All caught up 🔥", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             Text(
-                if (reviewed > 0) "Reviewed $reviewed cards today." else "Nothing due right now.",
+                if (reviewedToday > 0) "Reviewed $reviewedToday cards today. Nothing left to practice." else "Nothing due right now.",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
