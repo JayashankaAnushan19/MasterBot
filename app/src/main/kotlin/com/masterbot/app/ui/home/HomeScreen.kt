@@ -1,5 +1,10 @@
 package com.masterbot.app.ui.home
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,10 +25,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -38,19 +44,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.layout.ContentScale
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.masterbot.app.R
+import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.MasteryTier
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,10 +71,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val syncState by viewModel.syncState.collectAsState()
 
     // Home is the nav start destination, so its ViewModel survives navigating away and
     // back (e.g. finishing a topic and hitting back) -- without this, it just re-shows
     // whatever it loaded the first time, missing newly-unlocked topics/updated coins.
+    // This is now a cheap local-only reload (see HomeViewModel.refresh), not a network sync.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -73,6 +84,20 @@ fun HomeScreen(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (syncState is SyncState.UpdateAvailable) {
+        AlertDialog(
+            onDismissRequest = viewModel::dismissUpdate,
+            title = { Text("New content available") },
+            text = { Text("There's new content in MasterBot_Repo. Pull it now?") },
+            confirmButton = {
+                TextButton(onClick = viewModel::pullUpdate) { Text("Pull now") }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissUpdate) { Text("Later") }
+            },
+        )
     }
 
     Scaffold(
@@ -92,20 +117,46 @@ fun HomeScreen(
             color = MaterialTheme.colorScheme.background,
         ) {
             when (val s = state) {
-                is HomeUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
+                is HomeUiState.Loading -> PulsingAvatarLoading()
                 is HomeUiState.SyncFailed -> Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Sync failed", style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(8.dp))
                         Text(s.message, style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(16.dp))
-                        Button(onClick = viewModel::refresh) { Text("Retry") }
+                        Button(onClick = viewModel::retrySync) { Text("Retry") }
                     }
                 }
                 is HomeUiState.Ready -> HomeReadyContent(s, onStartTodayReview, onStartTopic)
             }
+        }
+    }
+}
+
+@Composable
+private fun PulsingAvatarLoading() {
+    val transition = rememberInfiniteTransition(label = "pulse")
+    val scale by transition.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        label = "scale",
+    )
+    val alpha by transition.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        label = "alpha",
+    )
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.avatar_tier_1),
+                contentDescription = null,
+                modifier = Modifier.size(96.dp).scale(scale).alpha(alpha),
+            )
+            Spacer(Modifier.height(16.dp))
+            Text("Pulling MasterBot_Repo…", style = MaterialTheme.typography.titleMedium)
         }
     }
 }

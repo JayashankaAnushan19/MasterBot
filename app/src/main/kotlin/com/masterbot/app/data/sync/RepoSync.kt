@@ -17,11 +17,11 @@ import java.io.File
 import java.time.LocalDate
 
 /**
- * Stage 4 scope: read-only clone/pull of MasterBot_Repo, straight into Room.
+ * Read-only clone/pull of MasterBot_Repo, straight into Room. Called from exactly one
+ * place -- [SyncCoordinator] -- not from individual screens; see that class for why.
  *
- * This is intentionally NOT the offline-safe sync described in spec section 6 (staging
- * table, merge-on-boundary, push-before-pull) -- that's Stage 5. Nothing here pushes
- * local data anywhere, and there is no in-progress-session protection yet.
+ * This is intentionally NOT the full offline-safe sync described in spec section 6
+ * (staging table, push-before-pull) -- see the plan notes on why that isn't needed yet.
  */
 class RepoSync(private val context: Context) {
 
@@ -31,6 +31,29 @@ class RepoSync(private val context: Context) {
     sealed interface Result {
         data class Success(val topicCount: Int, val cardCount: Int) : Result
         data class Failure(val message: String) : Result
+    }
+
+    sealed interface CheckResult {
+        data object UpToDate : CheckResult
+        data object UpdatesAvailable : CheckResult
+        data class Failure(val message: String) : CheckResult
+    }
+
+    fun hasClonedRepo(): Boolean = File(repoDir, ".git").exists()
+
+    /** Fetches remote refs and compares against local HEAD -- never merges/pulls. */
+    suspend fun checkForUpdates(): CheckResult = withContext(Dispatchers.IO) {
+        if (!hasClonedRepo()) return@withContext CheckResult.Failure("Not yet synced")
+        try {
+            Git.open(repoDir).use { git ->
+                git.fetch().setRemote("origin").call()
+                val localHead = git.repository.resolve("HEAD")
+                val remoteHead = git.repository.resolve("refs/remotes/origin/main")
+                if (localHead == remoteHead) CheckResult.UpToDate else CheckResult.UpdatesAvailable
+            }
+        } catch (e: Exception) {
+            CheckResult.Failure(e.message ?: e.javaClass.simpleName)
+        }
     }
 
     suspend fun syncAndLoad(): Result = withContext(Dispatchers.IO) {

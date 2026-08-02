@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,11 +39,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.masterbot.app.data.sync.SyncState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(onBack: () -> Unit, viewModel: ProfileViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
+    val syncState by viewModel.syncState.collectAsState()
     val context = LocalContext.current
     var nameField by remember(state.name) { mutableStateOf(state.name) }
 
@@ -112,9 +116,36 @@ fun ProfileScreen(onBack: () -> Unit, viewModel: ProfileViewModel = viewModel())
                         },
                     )
                 }
+
+                Spacer(Modifier.height(32.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(24.dp))
+
+                Text("Content sync", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                Text(syncStatusLabel(syncState), style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(12.dp))
+
+                when (syncState) {
+                    is SyncState.UpdateAvailable -> Row(
+                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                    ) {
+                        Button(onClick = viewModel::pullUpdate) { Text("Pull now") }
+                        Button(onClick = viewModel::dismissUpdate) { Text("Later") }
+                    }
+                    is SyncState.Syncing -> {}
+                    else -> Button(onClick = viewModel::checkForUpdates) { Text("Check for updates") }
+                }
             }
         }
     }
+}
+
+private fun syncStatusLabel(state: SyncState): String = when (state) {
+    is SyncState.Syncing -> "Checking…"
+    is SyncState.Ready -> "Up to date"
+    is SyncState.UpdateAvailable -> "New content is available"
+    is SyncState.Error -> "Sync error: ${state.message}"
 }
 
 private fun Modifier.onFocusLost(onLost: () -> Unit): Modifier = this.then(

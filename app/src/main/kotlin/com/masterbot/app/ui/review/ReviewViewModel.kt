@@ -5,11 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.CardEntity
 import com.masterbot.app.data.db.CardStateEntity
 import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.RepoSync
+import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.AnswerEvent
 import com.masterbot.engine.CardReviewState
 import com.masterbot.engine.DailyQueueBuilder
@@ -54,6 +56,7 @@ class ReviewViewModel(
 
     private val dao = AppDatabase.get(application).dao()
     private val repoSync = RepoSync(application)
+    private val syncCoordinator = (application as MasterBotApplication).syncCoordinator
 
     private val _uiState = MutableStateFlow<ReviewUiState>(ReviewUiState.Syncing)
     val uiState: StateFlow<ReviewUiState> = _uiState.asStateFlow()
@@ -68,40 +71,44 @@ class ReviewViewModel(
     private val answeredIdsToday = mutableSetOf<String>()
 
     init {
-        runSync()
-    }
-
-    fun retry() {
-        _uiState.value = ReviewUiState.Syncing
-        runSync()
-    }
-
-    private fun runSync() {
+        // No network sync triggered here -- SyncCoordinator (app-scoped) owns that. This
+        // just waits for it to be ready (instant if it already finished before this
+        // screen opened, which is the common case), then reads local data only.
         viewModelScope.launch {
-            when (val result = repoSync.syncAndLoad()) {
-                is RepoSync.Result.Failure -> _uiState.value = ReviewUiState.SyncFailed(result.message)
-                is RepoSync.Result.Success -> {
-                    rules = repoSync.currentRules()
-                    engine = SrsEngine(rules)
-                    progress = dao.userProgress() ?: UserProgressEntity(
-                        totalCoins = 0,
-                        currentStreak = 0,
-                        longestStreak = 0,
-                        lastGoalMetEpochDay = null,
-                    )
-                    // Seed from persisted state, not just this ViewModel instance's memory --
-                    // otherwise navigating away and back (a fresh ViewModel) forgets what was
-                    // already answered today and re-shows cards you just finished.
-                    val today = LocalDate.now().toEpochDay()
-                    val answeredTodayPersisted = dao.allCardStates()
-                        .filter { it.lastReviewedEpochDay == today }
-                        .map { it.cardId }
-                    answeredIdsToday += answeredTodayPersisted
-
-                    if (topicId != null) loadTopicQueue(topicId) else loadTodaysQueue()
+            syncCoordinator.state.collect { state ->
+                when (state) {
+                    is SyncState.Syncing -> _uiState.value = ReviewUiState.Syncing
+                    is SyncState.Error -> _uiState.value = ReviewUiState.SyncFailed(state.message)
+                    // Ready or UpdateAvailable: content is present locally either way. A
+                    // mid-session update is deliberately NOT applied here -- this screen
+                    // just keeps working off what was already loaded (see plan notes).
+                    else -> loadLocalData()
                 }
             }
         }
+    }
+
+    fun retry() = syncCoordinator.applyPendingUpdate()
+
+    private suspend fun loadLocalData() {
+        rules = repoSync.currentRules()
+        engine = SrsEngine(rules)
+        progress = dao.userProgress() ?: UserProgressEntity(
+            totalCoins = 0,
+            currentStreak = 0,
+            longestStreak = 0,
+            lastGoalMetEpochDay = null,
+        )
+        // Seed from persisted state, not just this ViewModel instance's memory --
+        // otherwise navigating away and back (a fresh ViewModel) forgets what was
+        // already answered today and re-shows cards you just finished.
+        val today = LocalDate.now().toEpochDay()
+        val answeredTodayPersisted = dao.allCardStates()
+            .filter { it.lastReviewedEpochDay == today }
+            .map { it.cardId }
+        answeredIdsToday += answeredTodayPersisted
+
+        if (topicId != null) loadTopicQueue(topicId) else loadTodaysQueue()
     }
 
     private suspend fun loadTodaysQueue() {

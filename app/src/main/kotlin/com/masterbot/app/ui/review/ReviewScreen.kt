@@ -1,6 +1,9 @@
 package com.masterbot.app.ui.review
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -32,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -99,9 +105,26 @@ private fun SyncFailedContent(message: String, onRetry: () -> Unit) {
 }
 
 @Composable
+private fun CelebrationBurst() {
+    val scale = remember { Animatable(0f) }
+    val alpha = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        alpha.animateTo(1f, animationSpec = spring(stiffness = Spring.StiffnessMedium))
+        scale.animateTo(1f, animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+    }
+    Text(
+        "🎉",
+        style = MaterialTheme.typography.displayLarge,
+        modifier = Modifier.scale(scale.value).alpha(alpha.value),
+    )
+}
+
+@Composable
 private fun GoalReachedContent(reviewedToday: Int, onKeepPracticing: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CelebrationBurst()
+            Spacer(Modifier.height(8.dp))
             Text("Daily goal reached 🔥", style = MaterialTheme.typography.headlineSmall)
             Spacer(Modifier.height(8.dp))
             Text("Reviewed $reviewedToday cards today.", style = MaterialTheme.typography.bodyMedium)

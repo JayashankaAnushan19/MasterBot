@@ -3,9 +3,11 @@ package com.masterbot.app.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.CardStateEntity
 import com.masterbot.app.data.sync.RepoSync
+import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.CardReviewState
 import com.masterbot.engine.MasteryTier
 import com.masterbot.engine.ModuleHealth
@@ -42,23 +44,38 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = AppDatabase.get(application).dao()
     private val repoSync = RepoSync(application)
+    private val syncCoordinator = (application as MasterBotApplication).syncCoordinator
+
+    /** Home renders its own update-available dialog off this; Loading/Error also come from here. */
+    val syncState: StateFlow<SyncState> = syncCoordinator.state
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        refresh()
-    }
-
-    fun refresh() {
-        _uiState.value = HomeUiState.Loading
         viewModelScope.launch {
-            when (val result = repoSync.syncAndLoad()) {
-                is RepoSync.Result.Failure -> _uiState.value = HomeUiState.SyncFailed(result.message)
-                is RepoSync.Result.Success -> loadDashboard()
+            syncCoordinator.state.collect { state ->
+                when (state) {
+                    is SyncState.Syncing -> _uiState.value = HomeUiState.Loading
+                    is SyncState.Error -> _uiState.value = HomeUiState.SyncFailed(state.message)
+                    // Ready or UpdateAvailable: local content is present either way, load it.
+                    // (UpdateAvailable just means the *dialog* should also show, handled separately.)
+                    else -> loadDashboard()
+                }
             }
         }
     }
+
+    /** Re-reads local data only -- no network. Safe/cheap to call on every screen resume. */
+    fun refresh() {
+        if (syncCoordinator.state.value !is SyncState.Syncing) {
+            viewModelScope.launch { loadDashboard() }
+        }
+    }
+
+    fun retrySync() = syncCoordinator.applyPendingUpdate()
+    fun pullUpdate() = syncCoordinator.applyPendingUpdate()
+    fun dismissUpdate() = syncCoordinator.dismissUpdate()
 
     private suspend fun loadDashboard() {
         val rules = repoSync.currentRules().moduleHealth

@@ -5,6 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -36,7 +41,14 @@ class MainActivity : ComponentActivity() {
 private fun MasterBotNavHost(application: Application) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(
+        navController = navController,
+        startDestination = "home",
+        enterTransition = { fadeIn(tween(220)) + slideInHorizontally(tween(220)) { it / 5 } },
+        exitTransition = { fadeOut(tween(220)) },
+        popEnterTransition = { fadeIn(tween(220)) },
+        popExitTransition = { fadeOut(tween(220)) + slideOutHorizontally(tween(220)) { it / 5 } },
+    ) {
         composable("home") {
             HomeScreen(
                 onStartTodayReview = { navController.navigate("review") },
