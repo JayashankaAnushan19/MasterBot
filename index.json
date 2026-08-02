@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generated_at": "2026-08-02T19:10:05Z",
-  "topic_count": 6,
-  "card_count": 49,
+  "generated_at": "2026-08-02T21:15:02Z",
+  "topic_count": 15,
+  "card_count": 112,
   "topics": [
     {
       "id": "electronic/circuit-theory/ohms-law-kirchhoffs-laws",
@@ -129,6 +129,305 @@
       ]
     },
     {
+      "id": "electronic/circuit-theory/op-amps-basics",
+      "pillar": "electronic",
+      "module": "circuit-theory",
+      "topic": "op-amps-basics",
+      "difficulty_base": 3,
+      "notes_path": "subjects/electronic/circuit-theory/op-amps-basics/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "elec-circ-opamp-001",
+          "type": "qa",
+          "question": "What are the two simplifying assumptions of the ideal op-amp model?",
+          "answer": "Infinite open-loop gain (drives V+ and V- to be essentially equal under negative feedback) and no input current at the V+/V- pins.",
+          "options": [],
+          "tags": [
+            "op-amp"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-circ-opamp-002",
+          "type": "qa",
+          "question": "Why does the 'no input current' assumption make op-amp circuit analysis tractable?",
+          "answer": "It lets you apply Kirchhoff's current law at the input nodes without accounting for any current flowing into the op-amp itself, simplifying the node equations.",
+          "options": [],
+          "tags": [
+            "op-amp",
+            "kcl"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-circ-opamp-003",
+          "type": "mcq",
+          "question": "Which op-amp configuration outputs a voltage equal to the input while presenting very high input impedance to the source?",
+          "answer": "Voltage follower / buffer",
+          "options": [
+            "Voltage follower / buffer",
+            "Inverting amplifier",
+            "Comparator",
+            "Non-inverting amplifier with gain 10"
+          ],
+          "tags": [
+            "op-amp",
+            "voltage-follower"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-circ-opamp-004",
+          "type": "qa",
+          "question": "Why is a voltage follower useful between a high-impedance sensor and a downstream circuit?",
+          "answer": "Because the op-amp's input draws almost no current, the sensor sees almost no load, avoiding the loading effect that would otherwise distort its reading, while still passing the voltage through to the downstream circuit.",
+          "options": [],
+          "tags": [
+            "op-amp",
+            "impedance-isolation"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-circ-opamp-005",
+          "type": "qa",
+          "question": "For a non-inverting amplifier with feedback resistors R1 and R2, what is the output voltage in terms of Vin?",
+          "answer": "Vout = Vin x (1 + R2/R1).",
+          "options": [],
+          "tags": [
+            "op-amp",
+            "non-inverting-amplifier"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-circ-opamp-006",
+          "type": "qa",
+          "question": "Why does the 'V+ equals V-' shortcut not apply when an op-amp is used as a comparator?",
+          "answer": "That shortcut relies on negative feedback forcing the two inputs together; a comparator is used without negative feedback, so instead the output simply slams to one supply rail based on which input is higher.",
+          "options": [],
+          "tags": [
+            "op-amp",
+            "comparator"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-circ-opamp-007",
+          "type": "qa",
+          "question": "For an inverting amplifier with input resistor Rin and feedback resistor Rf, what is the output voltage in terms of Vin, and what's notable about its sign?",
+          "answer": "Vout = -Vin x (Rf/Rin); the output is inverted (opposite sign) relative to the input, and the gain magnitude can be set below 1 (attenuation) as well as above 1.",
+          "options": [],
+          "tags": [
+            "op-amp",
+            "inverting-amplifier"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "electronic/microcontrollers/gpio-pwm-fundamentals",
+      "pillar": "electronic",
+      "module": "microcontrollers",
+      "topic": "gpio-pwm-fundamentals",
+      "difficulty_base": 1,
+      "notes_path": "subjects/electronic/microcontrollers/gpio-pwm-fundamentals/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "elec-mcu-gpiopwm-001",
+          "type": "qa",
+          "question": "Why does a floating digital input pin read unreliable, undefined values?",
+          "answer": "Nothing is actively driving the pin high or low, so its voltage is determined by noise rather than a defined logic level, making its read value unpredictable.",
+          "options": [],
+          "tags": [
+            "gpio",
+            "floating-pin"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-mcu-gpiopwm-002",
+          "type": "qa",
+          "question": "What does a pull-up or pull-down resistor do for a digital input pin?",
+          "answer": "It weakly biases the pin to a known default state (high for pull-up, low for pull-down) when nothing else is actively driving it, so the pin reads reliably instead of floating.",
+          "options": [],
+          "tags": [
+            "gpio",
+            "pull-up-resistor"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-mcu-gpiopwm-003",
+          "type": "qa",
+          "question": "What does PWM duty cycle control, and what is a GPIO pin fundamentally unable to output without it?",
+          "answer": "Duty cycle is the fraction of each cycle spent high, which determines the effective average level a downstream circuit sees; a GPIO pin can only be fully on or off, so PWM is how it fakes an intermediate analog-ish output.",
+          "options": [],
+          "tags": [
+            "pwm",
+            "duty-cycle"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-mcu-gpiopwm-004",
+          "type": "qa",
+          "question": "Why is PWM normally generated by a hardware timer peripheral rather than a software loop toggling the pin?",
+          "answer": "A hardware timer produces precise, consistent on/off switching without consuming CPU time in a loop; software toggling would be imprecise and wastefully occupy the processor.",
+          "options": [],
+          "tags": [
+            "pwm",
+            "timer-peripheral"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-mcu-gpiopwm-005",
+          "type": "mcq",
+          "question": "A hobby servo's position PWM signal typically uses which characteristic to encode target position, rather than a duty-cycle percentage?",
+          "answer": "Pulse width",
+          "options": [
+            "Pulse width",
+            "Signal amplitude",
+            "Number of pulses per second",
+            "Duty cycle percentage"
+          ],
+          "tags": [
+            "pwm",
+            "servo"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-mcu-gpiopwm-006",
+          "type": "qa",
+          "question": "Why would running DC motor PWM at too low a switching frequency cause the motor to audibly whine or vibrate?",
+          "answer": "If the PWM switching frequency falls within an audible/mechanically-resonant range, the motor's coils and structure physically respond to each switching cycle, producing an audible or vibrational artifact at that frequency.",
+          "options": [],
+          "tags": [
+            "pwm",
+            "dc-motor"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-mcu-gpiopwm-007",
+          "type": "qa",
+          "question": "Are a hobby servo's PWM position signal and a DC motor's PWM speed-control signal generally interchangeable?",
+          "answer": "No -- despite both being called PWM, a servo signal encodes position via pulse width at a specific low frequency (~50Hz), while motor speed control uses duty cycle at a much higher frequency; sending one type of signal to a device expecting the other will not work correctly.",
+          "options": [],
+          "tags": [
+            "pwm",
+            "servo",
+            "dc-motor"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "electronic/power-systems/battery-voltage-regulation-basics",
+      "pillar": "electronic",
+      "module": "power-systems",
+      "topic": "battery-voltage-regulation-basics",
+      "difficulty_base": 2,
+      "notes_path": "subjects/electronic/power-systems/battery-voltage-regulation-basics/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "elec-pow-battreg-001",
+          "type": "qa",
+          "question": "What is the nominal voltage of a single LiPo cell, and what does a '3S' pack mean?",
+          "answer": "A single LiPo cell is nominally 3.7V. '3S' means 3 cells in series, adding their voltages, for a nominal pack voltage of about 11.1V.",
+          "options": [],
+          "tags": [
+            "lipo",
+            "battery"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-pow-battreg-002",
+          "type": "qa",
+          "question": "What is the difference between series (S) and parallel (P) LiPo configuration?",
+          "answer": "Series configuration adds cell voltages together (higher pack voltage); parallel configuration adds capacity (mAh) at the same voltage.",
+          "options": [],
+          "tags": [
+            "lipo",
+            "battery"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-pow-battreg-003",
+          "type": "qa",
+          "question": "Why is a voltage regulator necessary even though a battery outputs a roughly known voltage?",
+          "answer": "Battery voltage isn't constant -- it drops as the battery discharges and sags further under load, but most electronics need a stable specific voltage (e.g. 5V or 3.3V) regardless, so a regulator provides that stability between the battery and the load.",
+          "options": [],
+          "tags": [
+            "voltage-regulation"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-pow-battreg-004",
+          "type": "mcq",
+          "question": "Which regulator type is inefficient because it dissipates the input/output voltage difference as heat?",
+          "answer": "LDO (low-dropout linear regulator)",
+          "options": [
+            "LDO (low-dropout linear regulator)",
+            "Buck converter",
+            "Boost converter",
+            "None of these dissipate heat"
+          ],
+          "tags": [
+            "ldo",
+            "voltage-regulation"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-pow-battreg-005",
+          "type": "qa",
+          "question": "When should a buck converter be used instead of an LDO to step voltage down?",
+          "answer": "When the current draw or the input/output voltage gap is large, since a buck converter steps voltage down by switching rather than dissipating the difference as heat, making it far more efficient than an LDO in that case.",
+          "options": [],
+          "tags": [
+            "buck-converter",
+            "ldo"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-pow-battreg-006",
+          "type": "qa",
+          "question": "Several motors on a robot stall simultaneously after hitting an obstacle, and the microcontroller resets moments later even though its regulator normally works fine. What likely happened?",
+          "answer": "The simultaneous stall current spike sagged the battery/rail voltage enough to brown out the regulator's input, dropping its output below what the microcontroller needs -- a transient current-driven voltage sag, not a steady-state regulator failure.",
+          "options": [],
+          "tags": [
+            "brownout",
+            "stall-current"
+          ],
+          "weight_seed": 1.4
+        },
+        {
+          "id": "elec-pow-battreg-007",
+          "type": "qa",
+          "question": "Why is over-discharging a LiPo cell below its safe voltage floor dangerous, not just reduced-capacity?",
+          "answer": "Over-discharging permanently damages the cell and creates a fire/safety risk, which is why a low-voltage cutoff is needed to stop discharge before the cell drops below roughly 3.0V.",
+          "options": [],
+          "tags": [
+            "lipo",
+            "low-voltage-cutoff"
+          ],
+          "weight_seed": 1.2
+        }
+      ]
+    },
+    {
       "id": "electronic/sensors/imu-fundamentals",
       "pillar": "electronic",
       "module": "sensors",
@@ -239,6 +538,108 @@
           "tags": [
             "imu",
             "position-estimation"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "it/algorithms/dynamic-programming-basics",
+      "pillar": "it",
+      "module": "algorithms",
+      "topic": "dynamic-programming-basics",
+      "difficulty_base": 3,
+      "notes_path": "subjects/it/algorithms/dynamic-programming-basics/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "it-algo-dp-001",
+          "type": "qa",
+          "question": "What two properties must a problem have for dynamic programming to apply?",
+          "answer": "Overlapping subproblems (the same subproblem is solved repeatedly) and optimal substructure (the optimal overall solution is built from optimal solutions to subproblems).",
+          "options": [],
+          "tags": [
+            "dynamic-programming"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-dp-002",
+          "type": "mcq",
+          "question": "Which DP strategy keeps the natural recursive structure but caches results the first time each subproblem is computed?",
+          "answer": "Memoization",
+          "options": [
+            "Memoization",
+            "Tabulation",
+            "Greedy search",
+            "Backtracking"
+          ],
+          "tags": [
+            "memoization"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-algo-dp-003",
+          "type": "qa",
+          "question": "Why is naive recursive Fibonacci exponential time, and what fixes it?",
+          "answer": "It recomputes the same fib(k) values many times due to overlapping subproblems; caching each result the first time it's computed (memoization or tabulation) reduces it to linear time.",
+          "options": [],
+          "tags": [
+            "dynamic-programming",
+            "complexity"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-dp-004",
+          "type": "mcq",
+          "question": "Which DP approach typically has less overhead because it avoids recursion/call-stack usage?",
+          "answer": "Tabulation",
+          "options": [
+            "Memoization",
+            "Tabulation",
+            "Both are identical in overhead",
+            "Neither uses a table"
+          ],
+          "tags": [
+            "tabulation"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-dp-005",
+          "type": "qa",
+          "question": "How does grid-based cost-to-go path planning (e.g. value iteration) relate to dynamic programming?",
+          "answer": "The optimal cost-to-go from a cell depends on the optimal cost-to-go of its neighbors; computing and reusing each cell's cost once, rather than recomputing it for every path that passes through, is exactly the DP pattern applied to path planning.",
+          "options": [],
+          "tags": [
+            "dynamic-programming",
+            "path-planning"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "it-algo-dp-006",
+          "type": "qa",
+          "question": "A problem has overlapping subproblems but a locally optimal choice at each step does not guarantee a globally optimal result. Can DP be applied as-is?",
+          "answer": "No -- DP additionally requires optimal substructure (optimal subsolutions compose into the optimal overall solution); without it, a greedy or DP-style approach won't reliably produce the correct answer.",
+          "options": [],
+          "tags": [
+            "dynamic-programming",
+            "optimal-substructure"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "it-algo-dp-007",
+          "type": "qa",
+          "question": "Why is tabulation often easier than memoization when you want to optimize space usage?",
+          "answer": "Tabulation makes the subproblem dependency order explicit, so it's easy to see that only the last row or last few entries of the table are needed at any point, letting you discard older entries; with recursive memoization the access pattern is less visible.",
+          "options": [],
+          "tags": [
+            "tabulation",
+            "space-optimization"
           ],
           "weight_seed": 1.3
         }
@@ -366,6 +767,215 @@
           "tags": [
             "dfs",
             "cycle-detection"
+          ],
+          "weight_seed": 1.0
+        }
+      ]
+    },
+    {
+      "id": "it/linux-embedded/systemd-services-fundamentals",
+      "pillar": "it",
+      "module": "linux-embedded",
+      "topic": "systemd-services-fundamentals",
+      "difficulty_base": 2,
+      "notes_path": "subjects/it/linux-embedded/systemd-services-fundamentals/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "it-linux-systemd-001",
+          "type": "qa",
+          "question": "What is the difference between `systemctl start` and `systemctl enable`?",
+          "answer": "start runs the service now for this boot only; enable makes it start automatically on future boots. A robot's core services usually need both.",
+          "options": [],
+          "tags": [
+            "systemd"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-linux-systemd-002",
+          "type": "mcq",
+          "question": "Which systemd service Type= expects the process to exit before the unit is considered active, typically used for setup/init tasks rather than daemons?",
+          "answer": "oneshot",
+          "options": [
+            "simple",
+            "oneshot",
+            "forking",
+            "notify"
+          ],
+          "tags": [
+            "systemd",
+            "unit-files"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-linux-systemd-003",
+          "type": "qa",
+          "question": "Why does Restart=on-failure matter for a sensor driver running on an unattended robot?",
+          "answer": "Without a restart policy, if the driver process crashes it simply stays down; Restart=on-failure (with RestartSec=) makes systemd automatically relaunch it, so a transient crash doesn't require a human to notice and intervene.",
+          "options": [],
+          "tags": [
+            "systemd",
+            "restart-policy"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "it-linux-systemd-004",
+          "type": "qa",
+          "question": "A service's status shows as active/started, but the actual process hasn't finished its own startup logic yet. What's a likely misconfiguration?",
+          "answer": "The Type= directive may be set incorrectly (e.g. simple when the process needs to signal readiness, or forking without a correct PIDFile), causing systemd to consider it started earlier than the process is actually ready.",
+          "options": [],
+          "tags": [
+            "systemd",
+            "unit-files",
+            "debugging"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "it-linux-systemd-005",
+          "type": "qa",
+          "question": "A robot's lidar driver service is failing to start after a software update. What's the first command to check for clues?",
+          "answer": "journalctl -u <service-name>, which shows that service's log output, including startup failures.",
+          "options": [],
+          "tags": [
+            "systemd",
+            "journalctl",
+            "debugging"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-linux-systemd-006",
+          "type": "mcq",
+          "question": "Which command follows a service's logs live, useful while debugging a driver against real hardware?",
+          "answer": "journalctl -u <service> -f",
+          "options": [
+            "systemctl status -f",
+            "journalctl -u <service> -f",
+            "systemctl enable -f",
+            "journalctl --live <service>"
+          ],
+          "tags": [
+            "journalctl"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-linux-systemd-007",
+          "type": "qa",
+          "question": "In the [Service] section of a unit file, what does the ExecStart directive specify?",
+          "answer": "The command that systemd runs to start the service.",
+          "options": [],
+          "tags": [
+            "systemd",
+            "unit-files"
+          ],
+          "weight_seed": 1.0
+        }
+      ]
+    },
+    {
+      "id": "it/networking/tcp-udp-fundamentals",
+      "pillar": "it",
+      "module": "networking",
+      "topic": "tcp-udp-fundamentals",
+      "difficulty_base": 2,
+      "notes_path": "subjects/it/networking/tcp-udp-fundamentals/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "it-net-tcpudp-001",
+          "type": "qa",
+          "question": "What key guarantee does TCP provide that UDP does not?",
+          "answer": "TCP guarantees every byte arrives, in order, retransmitting lost packets automatically; UDP provides no such guarantee -- lost packets are simply gone.",
+          "options": [],
+          "tags": [
+            "tcp",
+            "udp"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-net-tcpudp-002",
+          "type": "qa",
+          "question": "What is head-of-line blocking, and why does it make TCP a poor fit for real-time sensor streams?",
+          "answer": "Because TCP guarantees in-order delivery, a single lost packet stalls delivery of every packet behind it until the lost one is retransmitted, which introduces latency spikes that are unacceptable for time-sensitive real-time data.",
+          "options": [],
+          "tags": [
+            "tcp",
+            "latency"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "it-net-tcpudp-003",
+          "type": "mcq",
+          "question": "Which protocol requires a handshake before data can be sent?",
+          "answer": "TCP",
+          "options": [
+            "TCP",
+            "UDP",
+            "Both",
+            "Neither"
+          ],
+          "tags": [
+            "tcp"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-net-tcpudp-004",
+          "type": "qa",
+          "question": "Why is UDP generally preferred for a 200Hz IMU telemetry stream, even though it can silently drop readings?",
+          "answer": "For a continuous high-rate stream, the next reading matters more than guaranteeing every past one arrived; losing one occasional reading is harmless, but TCP's retransmission-and-reorder guarantee would stall the whole stream for a lost packet, which is worse.",
+          "options": [],
+          "tags": [
+            "udp",
+            "sensor-streams"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "it-net-tcpudp-005",
+          "type": "qa",
+          "question": "ROS2's DDS middleware defaults to which transport protocol, and how do QoS reliability profiles relate to the TCP-vs-UDP tradeoff?",
+          "answer": "DDS defaults to UDP. QoS reliability profiles let ROS2 reimplement selective reliability on top of UDP per-topic (reliable vs best_effort), giving the same tradeoff TCP-vs-UDP represents, but configurable per topic instead of all-or-nothing.",
+          "options": [],
+          "tags": [
+            "udp",
+            "ros2",
+            "qos"
+          ],
+          "weight_seed": 1.4
+        },
+        {
+          "id": "it-net-tcpudp-006",
+          "type": "qa",
+          "question": "Can a TCP service and a UDP service both use port 8080 on the same host without conflict?",
+          "answer": "Yes -- TCP and UDP ports are independent namespaces, so a TCP listener on 8080 does not conflict with a UDP listener on 8080.",
+          "options": [],
+          "tags": [
+            "ports"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "it-net-tcpudp-007",
+          "type": "mcq",
+          "question": "Which is a better default choice for pushing a firmware update file to a robot, where correctness matters more than latency?",
+          "answer": "TCP",
+          "options": [
+            "TCP",
+            "UDP",
+            "Either works identically",
+            "Neither, use a serial cable only"
+          ],
+          "tags": [
+            "tcp",
+            "use-cases"
           ],
           "weight_seed": 1.0
         }
@@ -614,6 +1224,107 @@
       ]
     },
     {
+      "id": "mechanical/actuators-drivetrains/servo-vs-stepper-motors",
+      "pillar": "mechanical",
+      "module": "actuators-drivetrains",
+      "topic": "servo-vs-stepper-motors",
+      "difficulty_base": 2,
+      "notes_path": "subjects/mechanical/actuators-drivetrains/servo-vs-stepper-motors/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "mech-act-servostep-001",
+          "type": "qa",
+          "question": "What is the fundamental control-loop difference between a servo motor and a stepper motor?",
+          "answer": "A servo is closed-loop: it has a position sensor and continuously corrects toward the commanded position. A stepper is open-loop: it moves a fixed step per pulse with no feedback verifying it actually moved.",
+          "options": [],
+          "tags": [
+            "servo",
+            "stepper"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-act-servostep-002",
+          "type": "qa",
+          "question": "What happens when a stepper motor misses steps under overload, and why doesn't the controller notice immediately?",
+          "answer": "The controller's belief about the motor's position silently drifts from the real position, because a stepper has no feedback sensor to verify each step actually occurred; the error is only caught by re-homing to a known reference position.",
+          "options": [],
+          "tags": [
+            "stepper",
+            "missed-steps"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "mech-act-servostep-003",
+          "type": "mcq",
+          "question": "A hobby servo's target angle is typically encoded by which property of its PWM control signal?",
+          "answer": "Pulse width",
+          "options": [
+            "Pulse width",
+            "Duty cycle percentage",
+            "Frequency",
+            "Voltage amplitude"
+          ],
+          "tags": [
+            "servo",
+            "pwm"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-act-servostep-004",
+          "type": "qa",
+          "question": "Why can a servo actively resist being pushed off its commanded position, while a stepper generally cannot detect this at all?",
+          "answer": "A servo's feedback loop continuously compares its sensed actual position to the commanded position and drives to close any gap, including one caused by an external force; a stepper has no position sensor, so it has no way to detect or correct for external disturbance.",
+          "options": [],
+          "tags": [
+            "servo",
+            "stepper",
+            "feedback"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-act-servostep-005",
+          "type": "qa",
+          "question": "What is microstepping, and what does it trade off?",
+          "answer": "Driving a stepper with intermediate current levels between full steps for smoother motion and finer effective resolution than the raw step angle, at some cost to available torque.",
+          "options": [],
+          "tags": [
+            "stepper",
+            "microstepping"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-act-servostep-006",
+          "type": "qa",
+          "question": "Why might a stepper be a better fit than a servo for a 3D-printer axis that just needs to hold position under load with no external disturbance to sense?",
+          "answer": "A stepper provides real holding torque at zero speed without needing a feedback loop at all, avoiding the added cost and complexity of a servo's position sensor and control circuit when disturbance-sensing isn't actually needed.",
+          "options": [],
+          "tags": [
+            "stepper",
+            "use-cases"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-act-servostep-007",
+          "type": "qa",
+          "question": "Before choosing a stepper for a high-load axis, what should be checked to avoid silent position drift?",
+          "answer": "The stepper's torque curve against the actual expected load and speed, to make sure the motor won't stall or miss steps under that load -- since a stepper has no feedback to catch a missed step when it happens.",
+          "options": [],
+          "tags": [
+            "stepper",
+            "torque-curve"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
       "id": "mechanical/kinematics/forward-inverse-kinematics",
       "pillar": "mechanical",
       "module": "kinematics",
@@ -735,6 +1446,201 @@
             "solving-methods"
           ],
           "weight_seed": 1.0
+        }
+      ]
+    },
+    {
+      "id": "mechanical/materials-manufacturing/stress-strain-material-selection",
+      "pillar": "mechanical",
+      "module": "materials-manufacturing",
+      "topic": "stress-strain-material-selection",
+      "difficulty_base": 2,
+      "notes_path": "subjects/mechanical/materials-manufacturing/stress-strain-material-selection/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "mech-mat-stress-001",
+          "type": "qa",
+          "question": "Define stress and strain in one sentence each.",
+          "answer": "Stress is force divided by cross-sectional area (how hard the material is being pushed, normalized by area); strain is change in length divided by original length (how much the material actually deformed).",
+          "options": [],
+          "tags": [
+            "stress",
+            "strain"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-mat-stress-002",
+          "type": "qa",
+          "question": "What does the slope of the elastic region of a stress-strain curve represent?",
+          "answer": "The elastic modulus (Young's modulus), a material property representing stiffness, independent of the part's geometry.",
+          "options": [],
+          "tags": [
+            "elastic-modulus"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-mat-stress-003",
+          "type": "qa",
+          "question": "What happens to a part if it is unloaded after being stressed past its yield strength?",
+          "answer": "It does not return to its original shape -- past yield strength the material has undergone permanent (plastic) deformation.",
+          "options": [],
+          "tags": [
+            "yield-strength"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-mat-stress-004",
+          "type": "mcq",
+          "question": "For a structural robot part, which value should typically be the design limit (with a safety margin below it)?",
+          "answer": "Yield strength",
+          "options": [
+            "Yield strength",
+            "Ultimate tensile strength",
+            "Fracture stress",
+            "Elastic modulus"
+          ],
+          "tags": [
+            "yield-strength",
+            "design"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-mat-stress-005",
+          "type": "qa",
+          "question": "Why is designing a part to operate near its ultimate tensile strength a bad idea, even though the part hasn't fractured yet?",
+          "answer": "By ultimate tensile strength the material has already undergone significant permanent plastic deformation and is on its way to necking and fracture; that's a failure state, not a safe operating margin.",
+          "options": [],
+          "tags": [
+            "ultimate-tensile-strength"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-mat-stress-006",
+          "type": "qa",
+          "question": "Why might aluminum be preferred over steel for most robot structural parts, and when would steel still be the better choice?",
+          "answer": "Aluminum has better strength-to-weight (stiffness per unit mass), making it the default for most parts; steel is preferable when stiffness-per-volume or raw strength/cost matters more than minimizing mass.",
+          "options": [],
+          "tags": [
+            "aluminum",
+            "steel",
+            "material-selection"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-mat-stress-007",
+          "type": "qa",
+          "question": "Why is it risky to trust a 3D-printed plastic part's bulk material datasheet strength for a structural load-bearing bracket?",
+          "answer": "3D-printed parts often have significant anisotropy -- they're weaker along layer lines than within a layer -- so the actual printed part's strength in the loading direction can be well below the bulk material's rated strength.",
+          "options": [],
+          "tags": [
+            "3d-printing",
+            "anisotropy"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "mechanical/statics-dynamics/free-body-diagrams-equilibrium",
+      "pillar": "mechanical",
+      "module": "statics-dynamics",
+      "topic": "free-body-diagrams-equilibrium",
+      "difficulty_base": 2,
+      "notes_path": "subjects/mechanical/statics-dynamics/free-body-diagrams-equilibrium/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "mech-stat-fbd-001",
+          "type": "qa",
+          "question": "What are the two static equilibrium equations that a free body diagram is used to set up?",
+          "answer": "Sum of forces equals zero (ΣF = 0, in each direction) and sum of torques/moments equals zero (ΣΤ = 0).",
+          "options": [],
+          "tags": [
+            "equilibrium",
+            "fbd"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-stat-fbd-002",
+          "type": "qa",
+          "question": "What is the key rule for what does and does not appear in a free body diagram?",
+          "answer": "Only external forces and torques acting on the isolated object appear -- every connection to the outside world is replaced by the force/torque it exerts; internal forces between parts of the same isolated object are never shown.",
+          "options": [],
+          "tags": [
+            "fbd"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-stat-fbd-003",
+          "type": "mcq",
+          "question": "In a 2D static equilibrium problem, how many independent equations are available (ΣFx=0, ΣFy=0, ΣΤ=0)?",
+          "answer": "3",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "6"
+          ],
+          "tags": [
+            "equilibrium"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-stat-fbd-004",
+          "type": "qa",
+          "question": "A 2D free body diagram has 4 unknown reaction forces. What does this mean for solving it with statics alone?",
+          "answer": "The system is statically indeterminate -- with only 3 independent 2D equilibrium equations available, statics alone cannot solve for 4 unknowns; additional information (e.g. material stiffness/deflection) is needed.",
+          "options": [],
+          "tags": [
+            "statically-indeterminate"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "mech-stat-fbd-005",
+          "type": "qa",
+          "question": "Why does 'statics' apply to an object moving at constant velocity, not just one completely at rest?",
+          "answer": "Static equilibrium requires zero acceleration, not zero velocity -- Newton's second law reduces to ΣF=0 whenever acceleration is zero, whether the object is stationary or moving at constant velocity.",
+          "options": [],
+          "tags": [
+            "statics",
+            "equilibrium"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-stat-fbd-006",
+          "type": "qa",
+          "question": "How does a free body diagram of a robot arm holding a payload at a fixed angle inform motor selection?",
+          "answer": "Solving ΣΤ=0 about the joint gives the torque required to hold the payload at that angle, which directly determines the minimum stall torque the joint's motor and gearbox need to provide.",
+          "options": [],
+          "tags": [
+            "fbd",
+            "torque",
+            "motor-selection"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "mech-stat-fbd-007",
+          "type": "qa",
+          "question": "What is the most common source of wrong answers in equilibrium problems, and how is it avoided?",
+          "answer": "Inconsistent sign conventions partway through a problem; it's avoided by picking one coordinate system and rotational-positive direction at the start and applying it consistently throughout.",
+          "options": [],
+          "tags": [
+            "sign-convention"
+          ],
+          "weight_seed": 1.1
         }
       ]
     }

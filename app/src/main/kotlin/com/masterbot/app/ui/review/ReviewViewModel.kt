@@ -89,6 +89,15 @@ class ReviewViewModel(
                         longestStreak = 0,
                         lastGoalMetEpochDay = null,
                     )
+                    // Seed from persisted state, not just this ViewModel instance's memory --
+                    // otherwise navigating away and back (a fresh ViewModel) forgets what was
+                    // already answered today and re-shows cards you just finished.
+                    val today = LocalDate.now().toEpochDay()
+                    val answeredTodayPersisted = dao.allCardStates()
+                        .filter { it.lastReviewedEpochDay == today }
+                        .map { it.cardId }
+                    answeredIdsToday += answeredTodayPersisted
+
                     if (topicId != null) loadTopicQueue(topicId) else loadTodaysQueue()
                 }
             }

@@ -1,0 +1,60 @@
+topic: "battery-voltage-regulation-basics"
+pillar: "electronic"
+module: "power-systems"
+difficulty_base: 2
+cards:
+  - id: "elec-pow-battreg-001"
+    type: "qa"
+    question: "What is the nominal voltage of a single LiPo cell, and what does a '3S' pack mean?"
+    answer: "A single LiPo cell is nominally 3.7V. '3S' means 3 cells in series, adding their voltages, for a nominal pack voltage of about 11.1V."
+    options: []
+    tags: ["lipo", "battery"]
+    weight_seed: 1.0
+
+  - id: "elec-pow-battreg-002"
+    type: "qa"
+    question: "What is the difference between series (S) and parallel (P) LiPo configuration?"
+    answer: "Series configuration adds cell voltages together (higher pack voltage); parallel configuration adds capacity (mAh) at the same voltage."
+    options: []
+    tags: ["lipo", "battery"]
+    weight_seed: 1.1
+
+  - id: "elec-pow-battreg-003"
+    type: "qa"
+    question: "Why is a voltage regulator necessary even though a battery outputs a roughly known voltage?"
+    answer: "Battery voltage isn't constant -- it drops as the battery discharges and sags further under load, but most electronics need a stable specific voltage (e.g. 5V or 3.3V) regardless, so a regulator provides that stability between the battery and the load."
+    options: []
+    tags: ["voltage-regulation"]
+    weight_seed: 1.2
+
+  - id: "elec-pow-battreg-004"
+    type: "mcq"
+    question: "Which regulator type is inefficient because it dissipates the input/output voltage difference as heat?"
+    answer: "LDO (low-dropout linear regulator)"
+    options: ["LDO (low-dropout linear regulator)", "Buck converter", "Boost converter", "None of these dissipate heat"]
+    tags: ["ldo", "voltage-regulation"]
+    weight_seed: 1.1
+
+  - id: "elec-pow-battreg-005"
+    type: "qa"
+    question: "When should a buck converter be used instead of an LDO to step voltage down?"
+    answer: "When the current draw or the input/output voltage gap is large, since a buck converter steps voltage down by switching rather than dissipating the difference as heat, making it far more efficient than an LDO in that case."
+    options: []
+    tags: ["buck-converter", "ldo"]
+    weight_seed: 1.2
+
+  - id: "elec-pow-battreg-006"
+    type: "qa"
+    question: "Several motors on a robot stall simultaneously after hitting an obstacle, and the microcontroller resets moments later even though its regulator normally works fine. What likely happened?"
+    answer: "The simultaneous stall current spike sagged the battery/rail voltage enough to brown out the regulator's input, dropping its output below what the microcontroller needs -- a transient current-driven voltage sag, not a steady-state regulator failure."
+    options: []
+    tags: ["brownout", "stall-current"]
+    weight_seed: 1.4
+
+  - id: "elec-pow-battreg-007"
+    type: "qa"
+    question: "Why is over-discharging a LiPo cell below its safe voltage floor dangerous, not just reduced-capacity?"
+    answer: "Over-discharging permanently damages the cell and creates a fire/safety risk, which is why a low-voltage cutoff is needed to stop discharge before the cell drops below roughly 3.0V."
+    options: []
+    tags: ["lipo", "low-voltage-cutoff"]
+    weight_seed: 1.2

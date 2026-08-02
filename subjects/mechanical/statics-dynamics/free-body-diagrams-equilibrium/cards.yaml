@@ -1,0 +1,60 @@
+topic: "free-body-diagrams-equilibrium"
+pillar: "mechanical"
+module: "statics-dynamics"
+difficulty_base: 2
+cards:
+  - id: "mech-stat-fbd-001"
+    type: "qa"
+    question: "What are the two static equilibrium equations that a free body diagram is used to set up?"
+    answer: "Sum of forces equals zero (ΣF = 0, in each direction) and sum of torques/moments equals zero (ΣΤ = 0)."
+    options: []
+    tags: ["equilibrium", "fbd"]
+    weight_seed: 1.0
+
+  - id: "mech-stat-fbd-002"
+    type: "qa"
+    question: "What is the key rule for what does and does not appear in a free body diagram?"
+    answer: "Only external forces and torques acting on the isolated object appear -- every connection to the outside world is replaced by the force/torque it exerts; internal forces between parts of the same isolated object are never shown."
+    options: []
+    tags: ["fbd"]
+    weight_seed: 1.1
+
+  - id: "mech-stat-fbd-003"
+    type: "mcq"
+    question: "In a 2D static equilibrium problem, how many independent equations are available (ΣFx=0, ΣFy=0, ΣΤ=0)?"
+    answer: "3"
+    options: ["1", "2", "3", "6"]
+    tags: ["equilibrium"]
+    weight_seed: 1.0
+
+  - id: "mech-stat-fbd-004"
+    type: "qa"
+    question: "A 2D free body diagram has 4 unknown reaction forces. What does this mean for solving it with statics alone?"
+    answer: "The system is statically indeterminate -- with only 3 independent 2D equilibrium equations available, statics alone cannot solve for 4 unknowns; additional information (e.g. material stiffness/deflection) is needed."
+    options: []
+    tags: ["statically-indeterminate"]
+    weight_seed: 1.3
+
+  - id: "mech-stat-fbd-005"
+    type: "qa"
+    question: "Why does 'statics' apply to an object moving at constant velocity, not just one completely at rest?"
+    answer: "Static equilibrium requires zero acceleration, not zero velocity -- Newton's second law reduces to ΣF=0 whenever acceleration is zero, whether the object is stationary or moving at constant velocity."
+    options: []
+    tags: ["statics", "equilibrium"]
+    weight_seed: 1.2
+
+  - id: "mech-stat-fbd-006"
+    type: "qa"
+    question: "How does a free body diagram of a robot arm holding a payload at a fixed angle inform motor selection?"
+    answer: "Solving ΣΤ=0 about the joint gives the torque required to hold the payload at that angle, which directly determines the minimum stall torque the joint's motor and gearbox need to provide."
+    options: []
+    tags: ["fbd", "torque", "motor-selection"]
+    weight_seed: 1.3
+
+  - id: "mech-stat-fbd-007"
+    type: "qa"
+    question: "What is the most common source of wrong answers in equilibrium problems, and how is it avoided?"
+    answer: "Inconsistent sign conventions partway through a problem; it's avoided by picking one coordinate system and rotational-positive direction at the start and applying it consistently throughout."
+    options: []
+    tags: ["sign-convention"]
+    weight_seed: 1.1

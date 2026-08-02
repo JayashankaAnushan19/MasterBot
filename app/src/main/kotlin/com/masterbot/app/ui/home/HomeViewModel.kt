@@ -21,6 +21,8 @@ data class TopicNode(
     val tier: MasteryTier,
     val completed: Boolean,
     val locked: Boolean,
+    val answeredCount: Int,
+    val totalCount: Int,
 )
 data class PillarSection(val pillar: String, val topics: List<TopicNode>)
 
@@ -77,10 +79,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         // "Complete" (per the user's spec, right or wrong doesn't matter): every card in
         // the topic has been answered at least once.
+        fun answeredCount(topicId: String): Int =
+            cardsByTopic[topicId].orEmpty().count { (states[it.id]?.repetitions ?: 0) > 0 }
+        fun totalCount(topicId: String): Int = cardsByTopic[topicId].orEmpty().size
         fun isTopicComplete(topicId: String): Boolean {
-            val topicCardIds = cardsByTopic[topicId].orEmpty().map { it.id }
-            if (topicCardIds.isEmpty()) return false
-            return topicCardIds.all { (states[it]?.repetitions ?: 0) > 0 }
+            val total = totalCount(topicId)
+            return total > 0 && answeredCount(topicId) == total
         }
 
         val pillars = topics
@@ -99,6 +103,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         tier = tierByModule[topic.module] ?: MasteryTier.NONE,
                         completed = completed,
                         locked = locked,
+                        answeredCount = answeredCount(topic.id),
+                        totalCount = totalCount(topic.id),
                     )
                 }
                 PillarSection(pillar = pillar, topics = nodes)

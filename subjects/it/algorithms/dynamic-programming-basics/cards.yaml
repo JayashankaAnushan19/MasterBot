@@ -1,0 +1,60 @@
+topic: "dynamic-programming-basics"
+pillar: "it"
+module: "algorithms"
+difficulty_base: 3
+cards:
+  - id: "it-algo-dp-001"
+    type: "qa"
+    question: "What two properties must a problem have for dynamic programming to apply?"
+    answer: "Overlapping subproblems (the same subproblem is solved repeatedly) and optimal substructure (the optimal overall solution is built from optimal solutions to subproblems)."
+    options: []
+    tags: ["dynamic-programming"]
+    weight_seed: 1.1
+
+  - id: "it-algo-dp-002"
+    type: "mcq"
+    question: "Which DP strategy keeps the natural recursive structure but caches results the first time each subproblem is computed?"
+    answer: "Memoization"
+    options: ["Memoization", "Tabulation", "Greedy search", "Backtracking"]
+    tags: ["memoization"]
+    weight_seed: 1.0
+
+  - id: "it-algo-dp-003"
+    type: "qa"
+    question: "Why is naive recursive Fibonacci exponential time, and what fixes it?"
+    answer: "It recomputes the same fib(k) values many times due to overlapping subproblems; caching each result the first time it's computed (memoization or tabulation) reduces it to linear time."
+    options: []
+    tags: ["dynamic-programming", "complexity"]
+    weight_seed: 1.1
+
+  - id: "it-algo-dp-004"
+    type: "mcq"
+    question: "Which DP approach typically has less overhead because it avoids recursion/call-stack usage?"
+    answer: "Tabulation"
+    options: ["Memoization", "Tabulation", "Both are identical in overhead", "Neither uses a table"]
+    tags: ["tabulation"]
+    weight_seed: 1.1
+
+  - id: "it-algo-dp-005"
+    type: "qa"
+    question: "How does grid-based cost-to-go path planning (e.g. value iteration) relate to dynamic programming?"
+    answer: "The optimal cost-to-go from a cell depends on the optimal cost-to-go of its neighbors; computing and reusing each cell's cost once, rather than recomputing it for every path that passes through, is exactly the DP pattern applied to path planning."
+    options: []
+    tags: ["dynamic-programming", "path-planning"]
+    weight_seed: 1.3
+
+  - id: "it-algo-dp-006"
+    type: "qa"
+    question: "A problem has overlapping subproblems but a locally optimal choice at each step does not guarantee a globally optimal result. Can DP be applied as-is?"
+    answer: "No -- DP additionally requires optimal substructure (optimal subsolutions compose into the optimal overall solution); without it, a greedy or DP-style approach won't reliably produce the correct answer."
+    options: []
+    tags: ["dynamic-programming", "optimal-substructure"]
+    weight_seed: 1.3
+
+  - id: "it-algo-dp-007"
+    type: "qa"
+    question: "Why is tabulation often easier than memoization when you want to optimize space usage?"
+    answer: "Tabulation makes the subproblem dependency order explicit, so it's easy to see that only the last row or last few entries of the table are needed at any point, letting you discard older entries; with recursive memoization the access pattern is less visible."
+    options: []
+    tags: ["tabulation", "space-optimization"]
+    weight_seed: 1.3

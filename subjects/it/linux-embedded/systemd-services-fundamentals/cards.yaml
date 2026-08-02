@@ -1,0 +1,60 @@
+topic: "systemd-services-fundamentals"
+pillar: "it"
+module: "linux-embedded"
+difficulty_base: 2
+cards:
+  - id: "it-linux-systemd-001"
+    type: "qa"
+    question: "What is the difference between `systemctl start` and `systemctl enable`?"
+    answer: "start runs the service now for this boot only; enable makes it start automatically on future boots. A robot's core services usually need both."
+    options: []
+    tags: ["systemd"]
+    weight_seed: 1.0
+
+  - id: "it-linux-systemd-002"
+    type: "mcq"
+    question: "Which systemd service Type= expects the process to exit before the unit is considered active, typically used for setup/init tasks rather than daemons?"
+    answer: "oneshot"
+    options: ["simple", "oneshot", "forking", "notify"]
+    tags: ["systemd", "unit-files"]
+    weight_seed: 1.1
+
+  - id: "it-linux-systemd-003"
+    type: "qa"
+    question: "Why does Restart=on-failure matter for a sensor driver running on an unattended robot?"
+    answer: "Without a restart policy, if the driver process crashes it simply stays down; Restart=on-failure (with RestartSec=) makes systemd automatically relaunch it, so a transient crash doesn't require a human to notice and intervene."
+    options: []
+    tags: ["systemd", "restart-policy"]
+    weight_seed: 1.2
+
+  - id: "it-linux-systemd-004"
+    type: "qa"
+    question: "A service's status shows as active/started, but the actual process hasn't finished its own startup logic yet. What's a likely misconfiguration?"
+    answer: "The Type= directive may be set incorrectly (e.g. simple when the process needs to signal readiness, or forking without a correct PIDFile), causing systemd to consider it started earlier than the process is actually ready."
+    options: []
+    tags: ["systemd", "unit-files", "debugging"]
+    weight_seed: 1.3
+
+  - id: "it-linux-systemd-005"
+    type: "qa"
+    question: "A robot's lidar driver service is failing to start after a software update. What's the first command to check for clues?"
+    answer: "journalctl -u <service-name>, which shows that service's log output, including startup failures."
+    options: []
+    tags: ["systemd", "journalctl", "debugging"]
+    weight_seed: 1.1
+
+  - id: "it-linux-systemd-006"
+    type: "mcq"
+    question: "Which command follows a service's logs live, useful while debugging a driver against real hardware?"
+    answer: "journalctl -u <service> -f"
+    options: ["systemctl status -f", "journalctl -u <service> -f", "systemctl enable -f", "journalctl --live <service>"]
+    tags: ["journalctl"]
+    weight_seed: 1.0
+
+  - id: "it-linux-systemd-007"
+    type: "qa"
+    question: "In the [Service] section of a unit file, what does the ExecStart directive specify?"
+    answer: "The command that systemd runs to start the service."
+    options: []
+    tags: ["systemd", "unit-files"]
+    weight_seed: 1.0

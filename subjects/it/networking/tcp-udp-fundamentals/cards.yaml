@@ -1,0 +1,60 @@
+topic: "tcp-udp-fundamentals"
+pillar: "it"
+module: "networking"
+difficulty_base: 2
+cards:
+  - id: "it-net-tcpudp-001"
+    type: "qa"
+    question: "What key guarantee does TCP provide that UDP does not?"
+    answer: "TCP guarantees every byte arrives, in order, retransmitting lost packets automatically; UDP provides no such guarantee -- lost packets are simply gone."
+    options: []
+    tags: ["tcp", "udp"]
+    weight_seed: 1.0
+
+  - id: "it-net-tcpudp-002"
+    type: "qa"
+    question: "What is head-of-line blocking, and why does it make TCP a poor fit for real-time sensor streams?"
+    answer: "Because TCP guarantees in-order delivery, a single lost packet stalls delivery of every packet behind it until the lost one is retransmitted, which introduces latency spikes that are unacceptable for time-sensitive real-time data."
+    options: []
+    tags: ["tcp", "latency"]
+    weight_seed: 1.3
+
+  - id: "it-net-tcpudp-003"
+    type: "mcq"
+    question: "Which protocol requires a handshake before data can be sent?"
+    answer: "TCP"
+    options: ["TCP", "UDP", "Both", "Neither"]
+    tags: ["tcp"]
+    weight_seed: 1.0
+
+  - id: "it-net-tcpudp-004"
+    type: "qa"
+    question: "Why is UDP generally preferred for a 200Hz IMU telemetry stream, even though it can silently drop readings?"
+    answer: "For a continuous high-rate stream, the next reading matters more than guaranteeing every past one arrived; losing one occasional reading is harmless, but TCP's retransmission-and-reorder guarantee would stall the whole stream for a lost packet, which is worse."
+    options: []
+    tags: ["udp", "sensor-streams"]
+    weight_seed: 1.2
+
+  - id: "it-net-tcpudp-005"
+    type: "qa"
+    question: "ROS2's DDS middleware defaults to which transport protocol, and how do QoS reliability profiles relate to the TCP-vs-UDP tradeoff?"
+    answer: "DDS defaults to UDP. QoS reliability profiles let ROS2 reimplement selective reliability on top of UDP per-topic (reliable vs best_effort), giving the same tradeoff TCP-vs-UDP represents, but configurable per topic instead of all-or-nothing."
+    options: []
+    tags: ["udp", "ros2", "qos"]
+    weight_seed: 1.4
+
+  - id: "it-net-tcpudp-006"
+    type: "qa"
+    question: "Can a TCP service and a UDP service both use port 8080 on the same host without conflict?"
+    answer: "Yes -- TCP and UDP ports are independent namespaces, so a TCP listener on 8080 does not conflict with a UDP listener on 8080."
+    options: []
+    tags: ["ports"]
+    weight_seed: 1.2
+
+  - id: "it-net-tcpudp-007"
+    type: "mcq"
+    question: "Which is a better default choice for pushing a firmware update file to a robot, where correctness matters more than latency?"
+    answer: "TCP"
+    options: ["TCP", "UDP", "Either works identically", "Neither, use a serial cable only"]
+    tags: ["tcp", "use-cases"]
+    weight_seed: 1.0

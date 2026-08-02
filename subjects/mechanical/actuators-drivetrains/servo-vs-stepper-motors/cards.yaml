@@ -1,0 +1,60 @@
+topic: "servo-vs-stepper-motors"
+pillar: "mechanical"
+module: "actuators-drivetrains"
+difficulty_base: 2
+cards:
+  - id: "mech-act-servostep-001"
+    type: "qa"
+    question: "What is the fundamental control-loop difference between a servo motor and a stepper motor?"
+    answer: "A servo is closed-loop: it has a position sensor and continuously corrects toward the commanded position. A stepper is open-loop: it moves a fixed step per pulse with no feedback verifying it actually moved."
+    options: []
+    tags: ["servo", "stepper"]
+    weight_seed: 1.1
+
+  - id: "mech-act-servostep-002"
+    type: "qa"
+    question: "What happens when a stepper motor misses steps under overload, and why doesn't the controller notice immediately?"
+    answer: "The controller's belief about the motor's position silently drifts from the real position, because a stepper has no feedback sensor to verify each step actually occurred; the error is only caught by re-homing to a known reference position."
+    options: []
+    tags: ["stepper", "missed-steps"]
+    weight_seed: 1.3
+
+  - id: "mech-act-servostep-003"
+    type: "mcq"
+    question: "A hobby servo's target angle is typically encoded by which property of its PWM control signal?"
+    answer: "Pulse width"
+    options: ["Pulse width", "Duty cycle percentage", "Frequency", "Voltage amplitude"]
+    tags: ["servo", "pwm"]
+    weight_seed: 1.1
+
+  - id: "mech-act-servostep-004"
+    type: "qa"
+    question: "Why can a servo actively resist being pushed off its commanded position, while a stepper generally cannot detect this at all?"
+    answer: "A servo's feedback loop continuously compares its sensed actual position to the commanded position and drives to close any gap, including one caused by an external force; a stepper has no position sensor, so it has no way to detect or correct for external disturbance."
+    options: []
+    tags: ["servo", "stepper", "feedback"]
+    weight_seed: 1.2
+
+  - id: "mech-act-servostep-005"
+    type: "qa"
+    question: "What is microstepping, and what does it trade off?"
+    answer: "Driving a stepper with intermediate current levels between full steps for smoother motion and finer effective resolution than the raw step angle, at some cost to available torque."
+    options: []
+    tags: ["stepper", "microstepping"]
+    weight_seed: 1.2
+
+  - id: "mech-act-servostep-006"
+    type: "qa"
+    question: "Why might a stepper be a better fit than a servo for a 3D-printer axis that just needs to hold position under load with no external disturbance to sense?"
+    answer: "A stepper provides real holding torque at zero speed without needing a feedback loop at all, avoiding the added cost and complexity of a servo's position sensor and control circuit when disturbance-sensing isn't actually needed."
+    options: []
+    tags: ["stepper", "use-cases"]
+    weight_seed: 1.2
+
+  - id: "mech-act-servostep-007"
+    type: "qa"
+    question: "Before choosing a stepper for a high-load axis, what should be checked to avoid silent position drift?"
+    answer: "The stepper's torque curve against the actual expected load and speed, to make sure the motor won't stall or miss steps under that load -- since a stepper has no feedback to catch a missed step when it happens."
+    options: []
+    tags: ["stepper", "torque-curve"]
+    weight_seed: 1.3

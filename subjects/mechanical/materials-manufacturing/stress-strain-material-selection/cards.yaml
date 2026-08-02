@@ -1,0 +1,60 @@
+topic: "stress-strain-material-selection"
+pillar: "mechanical"
+module: "materials-manufacturing"
+difficulty_base: 2
+cards:
+  - id: "mech-mat-stress-001"
+    type: "qa"
+    question: "Define stress and strain in one sentence each."
+    answer: "Stress is force divided by cross-sectional area (how hard the material is being pushed, normalized by area); strain is change in length divided by original length (how much the material actually deformed)."
+    options: []
+    tags: ["stress", "strain"]
+    weight_seed: 1.0
+
+  - id: "mech-mat-stress-002"
+    type: "qa"
+    question: "What does the slope of the elastic region of a stress-strain curve represent?"
+    answer: "The elastic modulus (Young's modulus), a material property representing stiffness, independent of the part's geometry."
+    options: []
+    tags: ["elastic-modulus"]
+    weight_seed: 1.1
+
+  - id: "mech-mat-stress-003"
+    type: "qa"
+    question: "What happens to a part if it is unloaded after being stressed past its yield strength?"
+    answer: "It does not return to its original shape -- past yield strength the material has undergone permanent (plastic) deformation."
+    options: []
+    tags: ["yield-strength"]
+    weight_seed: 1.1
+
+  - id: "mech-mat-stress-004"
+    type: "mcq"
+    question: "For a structural robot part, which value should typically be the design limit (with a safety margin below it)?"
+    answer: "Yield strength"
+    options: ["Yield strength", "Ultimate tensile strength", "Fracture stress", "Elastic modulus"]
+    tags: ["yield-strength", "design"]
+    weight_seed: 1.2
+
+  - id: "mech-mat-stress-005"
+    type: "qa"
+    question: "Why is designing a part to operate near its ultimate tensile strength a bad idea, even though the part hasn't fractured yet?"
+    answer: "By ultimate tensile strength the material has already undergone significant permanent plastic deformation and is on its way to necking and fracture; that's a failure state, not a safe operating margin."
+    options: []
+    tags: ["ultimate-tensile-strength"]
+    weight_seed: 1.2
+
+  - id: "mech-mat-stress-006"
+    type: "qa"
+    question: "Why might aluminum be preferred over steel for most robot structural parts, and when would steel still be the better choice?"
+    answer: "Aluminum has better strength-to-weight (stiffness per unit mass), making it the default for most parts; steel is preferable when stiffness-per-volume or raw strength/cost matters more than minimizing mass."
+    options: []
+    tags: ["aluminum", "steel", "material-selection"]
+    weight_seed: 1.2
+
+  - id: "mech-mat-stress-007"
+    type: "qa"
+    question: "Why is it risky to trust a 3D-printed plastic part's bulk material datasheet strength for a structural load-bearing bracket?"
+    answer: "3D-printed parts often have significant anisotropy -- they're weaker along layer lines than within a layer -- so the actual printed part's strength in the loading direction can be well below the bulk material's rated strength."
+    options: []
+    tags: ["3d-printing", "anisotropy"]
+    weight_seed: 1.3

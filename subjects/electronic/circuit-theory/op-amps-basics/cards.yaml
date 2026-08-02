@@ -1,0 +1,60 @@
+topic: "op-amps-basics"
+pillar: "electronic"
+module: "circuit-theory"
+difficulty_base: 3
+cards:
+  - id: "elec-circ-opamp-001"
+    type: "qa"
+    question: "What are the two simplifying assumptions of the ideal op-amp model?"
+    answer: "Infinite open-loop gain (drives V+ and V- to be essentially equal under negative feedback) and no input current at the V+/V- pins."
+    options: []
+    tags: ["op-amp"]
+    weight_seed: 1.2
+
+  - id: "elec-circ-opamp-002"
+    type: "qa"
+    question: "Why does the 'no input current' assumption make op-amp circuit analysis tractable?"
+    answer: "It lets you apply Kirchhoff's current law at the input nodes without accounting for any current flowing into the op-amp itself, simplifying the node equations."
+    options: []
+    tags: ["op-amp", "kcl"]
+    weight_seed: 1.3
+
+  - id: "elec-circ-opamp-003"
+    type: "mcq"
+    question: "Which op-amp configuration outputs a voltage equal to the input while presenting very high input impedance to the source?"
+    answer: "Voltage follower / buffer"
+    options: ["Voltage follower / buffer", "Inverting amplifier", "Comparator", "Non-inverting amplifier with gain 10"]
+    tags: ["op-amp", "voltage-follower"]
+    weight_seed: 1.1
+
+  - id: "elec-circ-opamp-004"
+    type: "qa"
+    question: "Why is a voltage follower useful between a high-impedance sensor and a downstream circuit?"
+    answer: "Because the op-amp's input draws almost no current, the sensor sees almost no load, avoiding the loading effect that would otherwise distort its reading, while still passing the voltage through to the downstream circuit."
+    options: []
+    tags: ["op-amp", "impedance-isolation"]
+    weight_seed: 1.3
+
+  - id: "elec-circ-opamp-005"
+    type: "qa"
+    question: "For a non-inverting amplifier with feedback resistors R1 and R2, what is the output voltage in terms of Vin?"
+    answer: "Vout = Vin x (1 + R2/R1)."
+    options: []
+    tags: ["op-amp", "non-inverting-amplifier"]
+    weight_seed: 1.2
+
+  - id: "elec-circ-opamp-006"
+    type: "qa"
+    question: "Why does the 'V+ equals V-' shortcut not apply when an op-amp is used as a comparator?"
+    answer: "That shortcut relies on negative feedback forcing the two inputs together; a comparator is used without negative feedback, so instead the output simply slams to one supply rail based on which input is higher."
+    options: []
+    tags: ["op-amp", "comparator"]
+    weight_seed: 1.3
+
+  - id: "elec-circ-opamp-007"
+    type: "qa"
+    question: "For an inverting amplifier with input resistor Rin and feedback resistor Rf, what is the output voltage in terms of Vin, and what's notable about its sign?"
+    answer: "Vout = -Vin x (Rf/Rin); the output is inverted (opposite sign) relative to the input, and the gain magnitude can be set below 1 (attenuation) as well as above 1."
+    options: []
+    tags: ["op-amp", "inverting-amplifier"]
+    weight_seed: 1.3
