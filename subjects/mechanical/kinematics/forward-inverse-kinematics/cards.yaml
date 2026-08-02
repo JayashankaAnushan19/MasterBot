@@ -1,0 +1,68 @@
+topic: "forward-inverse-kinematics"
+pillar: "mechanical"
+module: "kinematics"
+difficulty_base: 3
+cards:
+  - id: "mech-kin-fik-001"
+    type: "qa"
+    question: "What is the fundamental difference between what forward kinematics and inverse kinematics solve for?"
+    answer: "Forward kinematics takes joint angles and computes end-effector pose; inverse kinematics takes a desired end-effector pose and computes the joint angles needed to reach it."
+    options: []
+    tags: ["fk", "ik", "kinematics"]
+    weight_seed: 1.0
+
+  - id: "mech-kin-fik-002"
+    type: "qa"
+    question: "Why does forward kinematics always have exactly one solution, while inverse kinematics may have zero, one, or many?"
+    answer: "FK is a direct chain of matrix multiplications from known joint values, so it's a deterministic computation. IK inverts that mapping, and multiple joint configurations (e.g. elbow-up vs elbow-down) can produce the same end-effector pose, or none can if the pose is unreachable."
+    options: []
+    tags: ["fk", "ik"]
+    weight_seed: 1.1
+
+  - id: "mech-kin-fik-003"
+    type: "mcq"
+    question: "How many parameters does the Denavit-Hartenberg (DH) convention use to describe each joint's transform?"
+    answer: "4"
+    options: ["2", "3", "4", "6"]
+    tags: ["dh-parameters", "fk"]
+    weight_seed: 1.0
+
+  - id: "mech-kin-fik-004"
+    type: "qa"
+    question: "What is a kinematic singularity, and what practical problem does it cause for an IK solver?"
+    answer: "A configuration where the Jacobian loses rank, meaning the arm loses the ability to move in some direction; near it, small desired end-effector velocities can demand very large or unachievable joint velocities, so solvers must detect and dampen rather than blindly invert the Jacobian."
+    options: []
+    tags: ["singularity", "jacobian", "ik"]
+    weight_seed: 1.3
+
+  - id: "mech-kin-fik-005"
+    type: "mcq"
+    question: "How many degrees of freedom are required to reach an arbitrary position and orientation in 3D space?"
+    answer: "6"
+    options: ["3", "4", "6", "7"]
+    tags: ["dof", "kinematics"]
+    weight_seed: 1.0
+
+  - id: "mech-kin-fik-006"
+    type: "qa"
+    question: "What does it mean for a manipulator to be 'kinematically redundant', and what's one practical benefit of redundancy?"
+    answer: "It has more than 6 DOF, so multiple joint configurations can achieve the same end-effector pose; the extra freedom can be used to avoid obstacles or stay away from joint limits while still hitting the target pose."
+    options: []
+    tags: ["dof", "redundancy"]
+    weight_seed: 1.2
+
+  - id: "mech-kin-fik-007"
+    type: "qa"
+    question: "What role does the Jacobian play in numerical/iterative IK solving?"
+    answer: "The Jacobian relates joint velocities to end-effector velocity; iterative solvers use it (e.g. via transpose or pseudo-inverse) to step the current joint angle guess toward the target pose."
+    options: []
+    tags: ["jacobian", "ik", "numerical-methods"]
+    weight_seed: 1.2
+
+  - id: "mech-kin-fik-008"
+    type: "mcq"
+    question: "Which IK solving approach is fastest and exact but only applicable to specific, often simpler arm geometries?"
+    answer: "Analytical/closed-form"
+    options: ["Analytical/closed-form", "Numerical/iterative", "Optimization-based", "Monte Carlo sampling"]
+    tags: ["ik", "solving-methods"]
+    weight_seed: 1.0

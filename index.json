@@ -1,0 +1,742 @@
+{
+  "version": 1,
+  "generated_at": "2026-08-02T19:10:05Z",
+  "topic_count": 6,
+  "card_count": 49,
+  "topics": [
+    {
+      "id": "electronic/circuit-theory/ohms-law-kirchhoffs-laws",
+      "pillar": "electronic",
+      "module": "circuit-theory",
+      "topic": "ohms-law-kirchhoffs-laws",
+      "difficulty_base": 1,
+      "notes_path": "subjects/electronic/circuit-theory/ohms-law-kirchhoffs-laws/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "elec-circ-ohmkirch-001",
+          "type": "qa",
+          "question": "State Ohm's Law and what each variable represents.",
+          "answer": "V = I x R, where V is voltage across a resistive element, I is current through it, and R is its resistance.",
+          "options": [],
+          "tags": [
+            "ohms-law"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-circ-ohmkirch-002",
+          "type": "qa",
+          "question": "If you double the current through a fixed resistor, what happens to the power it dissipates?",
+          "answer": "It quadruples, because power dissipated as heat follows P = I^2 x R, so power scales with the square of current.",
+          "options": [],
+          "tags": [
+            "ohms-law",
+            "power"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "elec-circ-ohmkirch-003",
+          "type": "qa",
+          "question": "State Kirchhoff's Current Law (KCL) in one sentence.",
+          "answer": "The sum of currents flowing into a node equals the sum of currents flowing out of it.",
+          "options": [],
+          "tags": [
+            "kcl"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-circ-ohmkirch-004",
+          "type": "qa",
+          "question": "State Kirchhoff's Voltage Law (KVL) in one sentence.",
+          "answer": "The sum of voltage rises and drops around any closed loop in a circuit is zero.",
+          "options": [],
+          "tags": [
+            "kvl"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-circ-ohmkirch-005",
+          "type": "mcq",
+          "question": "For resistors in series, how does total resistance compare to the individual resistors?",
+          "answer": "Always larger than any individual resistor",
+          "options": [
+            "Always smaller than any individual resistor",
+            "Always larger than any individual resistor",
+            "Always equal to the average",
+            "Depends only on voltage applied"
+          ],
+          "tags": [
+            "series-resistors"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-circ-ohmkirch-006",
+          "type": "mcq",
+          "question": "For resistors in parallel, how does total resistance compare to the individual resistors?",
+          "answer": "Always smaller than the smallest individual resistor",
+          "options": [
+            "Always larger than any individual resistor",
+            "Always equal to the sum",
+            "Always smaller than the smallest individual resistor",
+            "Always equal to the largest resistor"
+          ],
+          "tags": [
+            "parallel-resistors"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-circ-ohmkirch-007",
+          "type": "qa",
+          "question": "Write the voltage divider formula for V_out across R2 in a series R1-R2 divider fed by V_in, and name which two laws it combines.",
+          "answer": "V_out = V_in x R2/(R1+R2); it combines KVL with the series-resistor current relationship (Ohm's Law applied to each resistor).",
+          "options": [],
+          "tags": [
+            "voltage-divider",
+            "kvl"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-circ-ohmkirch-008",
+          "type": "qa",
+          "question": "A 5V-powered LED needs a current-limiting resistor. The LED drops 2V and should run at 20mA. What resistor value is needed?",
+          "answer": "R = (5V - 2V) / 0.02A = 150 ohms.",
+          "options": [],
+          "tags": [
+            "ohms-law",
+            "led-resistor"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-circ-ohmkirch-009",
+          "type": "qa",
+          "question": "A power rail sags under load and every downstream component seems to be drawing current fine individually. What should you check first using KCL before blaming the regulator?",
+          "answer": "Sum the current draw of every downstream component to see if their total exceeds what the regulator/supply can actually source, since KCL requires all that current to come from somewhere.",
+          "options": [],
+          "tags": [
+            "kcl",
+            "debugging"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "electronic/sensors/imu-fundamentals",
+      "pillar": "electronic",
+      "module": "sensors",
+      "topic": "imu-fundamentals",
+      "difficulty_base": 2,
+      "notes_path": "subjects/electronic/sensors/imu-fundamentals/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "elec-sens-imu-001",
+          "type": "qa",
+          "question": "What three sensors typically make up a 9-DOF IMU?",
+          "answer": "A 3-axis accelerometer, a 3-axis gyroscope, and a 3-axis magnetometer.",
+          "options": [],
+          "tags": [
+            "imu",
+            "sensors"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-sens-imu-002",
+          "type": "qa",
+          "question": "Why does a gyroscope-only orientation estimate suffer from drift over time?",
+          "answer": "Orientation is obtained by integrating angular velocity over time, so any small constant sensor bias or noise accumulates and grows without bound in the integrated result.",
+          "options": [],
+          "tags": [
+            "gyroscope",
+            "drift"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-sens-imu-003",
+          "type": "qa",
+          "question": "Why can't an accelerometer alone be trusted as a 'which way is down' reference during dynamic motion like braking or turning?",
+          "answer": "An accelerometer measures the combination of gravity and the robot's own linear acceleration, and it can't distinguish between the two, so under dynamic motion its gravity-direction estimate becomes unreliable.",
+          "options": [],
+          "tags": [
+            "accelerometer",
+            "sensor-fusion"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-sens-imu-004",
+          "type": "mcq",
+          "question": "Which IMU component provides an absolute yaw (heading) reference?",
+          "answer": "Magnetometer",
+          "options": [
+            "Accelerometer",
+            "Gyroscope",
+            "Magnetometer",
+            "Barometer"
+          ],
+          "tags": [
+            "magnetometer"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "elec-sens-imu-005",
+          "type": "qa",
+          "question": "Why is a magnetometer on a mobile robot particularly prone to error near motors and power electronics?",
+          "answer": "Nearby ferrous metal and current-carrying wires distort the local magnetic field, which throws off the magnetometer's heading estimate, and motors/power electronics are commonly mounted close to the IMU.",
+          "options": [],
+          "tags": [
+            "magnetometer",
+            "sensor-error"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "elec-sens-imu-006",
+          "type": "qa",
+          "question": "Describe the core idea of a complementary filter fusing accelerometer and gyroscope data.",
+          "answer": "Low-pass filter the accelerometer (trusting its slow, long-term absolute gravity reference) and high-pass filter the gyroscope (trusting its accurate short-term relative change), combining the two so the accelerometer corrects the gyro's slow drift without adopting its noisy short-term jitter.",
+          "options": [],
+          "tags": [
+            "complementary-filter",
+            "sensor-fusion"
+          ],
+          "weight_seed": 1.4
+        },
+        {
+          "id": "elec-sens-imu-007",
+          "type": "mcq",
+          "question": "Compared to a complementary filter, what does a Kalman filter add for IMU sensor fusion?",
+          "answer": "It statistically weights each sensor by its estimated uncertainty and propagates a full state estimate over time",
+          "options": [
+            "It statistically weights each sensor by its estimated uncertainty and propagates a full state estimate over time",
+            "It ignores the gyroscope entirely",
+            "It requires no calibration",
+            "It only works with magnetometers"
+          ],
+          "tags": [
+            "kalman-filter",
+            "sensor-fusion"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "elec-sens-imu-008",
+          "type": "qa",
+          "question": "Why can an IMU never give you reliable absolute position on its own, even with good sensor fusion?",
+          "answer": "Position requires integrating acceleration twice, and any small error compounds rapidly through a double integration, so absolute position needs an external reference like GPS, visual odometry, or wheel encoders fused in.",
+          "options": [],
+          "tags": [
+            "imu",
+            "position-estimation"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "it/algorithms/graph-search-bfs-dfs",
+      "pillar": "it",
+      "module": "algorithms",
+      "topic": "graph-search-bfs-dfs",
+      "difficulty_base": 2,
+      "notes_path": "subjects/it/algorithms/graph-search-bfs-dfs/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "it-algo-bfsdfs-001",
+          "type": "qa",
+          "question": "What key guarantee does BFS provide on an unweighted graph that DFS does not?",
+          "answer": "BFS guarantees the shortest path in terms of edge count; DFS only guarantees finding a path, not the shortest one.",
+          "options": [],
+          "tags": [
+            "bfs",
+            "dfs",
+            "graphs"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-algo-bfsdfs-002",
+          "type": "mcq",
+          "question": "Which data structure does BFS use to track the frontier of nodes to visit?",
+          "answer": "FIFO queue",
+          "options": [
+            "LIFO stack",
+            "FIFO queue",
+            "Priority queue",
+            "Hash set"
+          ],
+          "tags": [
+            "bfs",
+            "data-structures"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-algo-bfsdfs-003",
+          "type": "qa",
+          "question": "What is the time complexity of both BFS and DFS on a graph with an adjacency-list representation, and why?",
+          "answer": "O(V + E): every vertex is visited once and every edge is examined once.",
+          "options": [],
+          "tags": [
+            "bfs",
+            "dfs",
+            "complexity"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-algo-bfsdfs-004",
+          "type": "qa",
+          "question": "You need to find dependency startup order for a set of ROS2 nodes with 'must start after' constraints. Which traversal-based technique fits, and which underlying search does it use?",
+          "answer": "Topological sort, which is built on DFS.",
+          "options": [],
+          "tags": [
+            "dfs",
+            "topological-sort"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-bfsdfs-005",
+          "type": "mcq",
+          "question": "Why might DFS be preferred over BFS when memory is tightly constrained?",
+          "answer": "DFS frontier size is O(depth), while BFS frontier size can be O(branching_factor^depth)",
+          "options": [
+            "DFS is always faster asymptotically",
+            "DFS frontier size is O(depth), while BFS frontier size can be O(branching_factor^depth)",
+            "DFS always finds the shortest path",
+            "BFS cannot be implemented iteratively"
+          ],
+          "tags": [
+            "dfs",
+            "bfs",
+            "memory"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-bfsdfs-006",
+          "type": "qa",
+          "question": "Your occupancy-grid path planner needs to account for varying terrain cost, not just cell count. Why is plain BFS no longer sufficient, and what's the next algorithm to reach for?",
+          "answer": "BFS treats every edge as equal cost, so it can't represent weighted terrain; Dijkstra (or A* with a heuristic) replaces the FIFO queue with a priority queue ordered by accumulated cost.",
+          "options": [],
+          "tags": [
+            "bfs",
+            "dijkstra",
+            "path-planning"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "it-algo-bfsdfs-007",
+          "type": "qa",
+          "question": "What does A* add on top of Dijkstra's algorithm, and what effect does that typically have?",
+          "answer": "A* adds a heuristic estimate of remaining distance to the goal, which usually lets it explore fewer nodes and reach the goal faster in practice for point-to-point search.",
+          "options": [],
+          "tags": [
+            "astar",
+            "dijkstra",
+            "path-planning"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-algo-bfsdfs-008",
+          "type": "mcq",
+          "question": "Which traversal is the natural fit for detecting a cycle in a graph?",
+          "answer": "DFS",
+          "options": [
+            "BFS",
+            "DFS",
+            "Binary search",
+            "Union-Find only, no traversal needed"
+          ],
+          "tags": [
+            "dfs",
+            "cycle-detection"
+          ],
+          "weight_seed": 1.0
+        }
+      ]
+    },
+    {
+      "id": "it/programming/ros2-nodes-topics",
+      "pillar": "it",
+      "module": "programming",
+      "topic": "ros2-nodes-topics",
+      "difficulty_base": 2,
+      "notes_path": "subjects/it/programming/ros2-nodes-topics/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "it-prog-ros2-001",
+          "type": "qa",
+          "question": "What is the difference between a ROS2 topic and a service?",
+          "answer": "Topics are asynchronous pub/sub streams; services are synchronous request/response calls.",
+          "options": [],
+          "tags": [
+            "ros2",
+            "communication"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-prog-ros2-002",
+          "type": "mcq",
+          "question": "Which ROS2 communication pattern is best suited for a Nav2 goal that reports progress and can be cancelled?",
+          "answer": "Action",
+          "options": [
+            "Topic",
+            "Service",
+            "Action",
+            "Parameter"
+          ],
+          "tags": [
+            "ros2",
+            "actions"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-prog-ros2-003",
+          "type": "qa",
+          "question": "Why might a subscriber's callback never fire even though the publisher is actively publishing?",
+          "answer": "Incompatible QoS profiles between publisher and subscriber (e.g. one is reliable, the other best_effort) prevent them from matching, so no connection is made.",
+          "options": [],
+          "tags": [
+            "ros2",
+            "qos"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-prog-ros2-004",
+          "type": "mcq",
+          "question": "Which QoS durability setting lets a late-joining subscriber still receive the last published message, useful for a /map topic?",
+          "answer": "transient_local",
+          "options": [
+            "volatile",
+            "transient_local",
+            "best_effort",
+            "reliable"
+          ],
+          "tags": [
+            "ros2",
+            "qos"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-prog-ros2-005",
+          "type": "qa",
+          "question": "Why does ROS2 not need a central master process like ROS1's roscore?",
+          "answer": "Node discovery happens automatically via DDS discovery, so nodes can find each other and connect regardless of start order without a central registry.",
+          "options": [],
+          "tags": [
+            "ros2",
+            "dds",
+            "discovery"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "it-prog-ros2-006",
+          "type": "qa",
+          "question": "A ROS2 node stops responding to all of its subscriptions and timers at once, even though only one callback is doing slow work. What's the likely cause?",
+          "answer": "A single-threaded executor is running all callbacks on one queue; the slow callback blocks the executor thread, so every other callback on that node stalls behind it.",
+          "options": [],
+          "tags": [
+            "ros2",
+            "executors"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "it-prog-ros2-007",
+          "type": "mcq",
+          "question": "For a high-rate lidar scan topic where an occasional dropped message is acceptable but low latency matters, which reliability QoS setting is more appropriate?",
+          "answer": "best_effort",
+          "options": [
+            "reliable",
+            "best_effort",
+            "transient_local",
+            "volatile"
+          ],
+          "tags": [
+            "ros2",
+            "qos"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "it-prog-ros2-008",
+          "type": "qa",
+          "question": "Why is a ROS2 service a poor fit for a long-running arm trajectory execution?",
+          "answer": "A service call blocks until a single response arrives with no built-in mechanism for progress feedback or mid-flight cancellation, both of which a long trajectory needs.",
+          "options": [],
+          "tags": [
+            "ros2",
+            "services",
+            "actions"
+          ],
+          "weight_seed": 1.0
+        }
+      ]
+    },
+    {
+      "id": "mechanical/actuators-drivetrains/dc-motor-fundamentals",
+      "pillar": "mechanical",
+      "module": "actuators-drivetrains",
+      "topic": "dc-motor-fundamentals",
+      "difficulty_base": 2,
+      "notes_path": "subjects/mechanical/actuators-drivetrains/dc-motor-fundamentals/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "mech-act-dcmotor-001",
+          "type": "qa",
+          "question": "At what point on a DC motor's torque-speed curve is torque at its maximum, and why?",
+          "answer": "At stall (zero speed): back-EMF is zero at zero speed, so current through the windings is maximum, and since torque is proportional to current, torque is also at its maximum.",
+          "options": [],
+          "tags": [
+            "dc-motor",
+            "torque-speed-curve"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-act-dcmotor-002",
+          "type": "qa",
+          "question": "Why is stalling a DC motor under load for an extended time dangerous for the motor?",
+          "answer": "Stall current is the motor's maximum current draw, which means maximum resistive heating in the windings, so a sustained stall can burn the motor out.",
+          "options": [],
+          "tags": [
+            "dc-motor",
+            "stall-current"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-act-dcmotor-003",
+          "type": "mcq",
+          "question": "Which method of DC motor speed control is most power-efficient?",
+          "answer": "PWM (pulse width modulation)",
+          "options": [
+            "Linear voltage regulation",
+            "PWM (pulse width modulation)",
+            "Series resistor",
+            "Reducing supply voltage permanently"
+          ],
+          "tags": [
+            "dc-motor",
+            "pwm"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-act-dcmotor-004",
+          "type": "qa",
+          "question": "Why is a linear voltage regulator a less efficient way to control DC motor speed than PWM?",
+          "answer": "A linear regulator dissipates the difference between supply and effective voltage as heat, wasting power, whereas PWM switches the full voltage on and off, which loses very little energy to heat.",
+          "options": [],
+          "tags": [
+            "dc-motor",
+            "pwm",
+            "efficiency"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-act-dcmotor-005",
+          "type": "qa",
+          "question": "What does a 10:1 gearbox do to a DC motor's output speed and torque (ignoring mechanical losses)?",
+          "answer": "It roughly divides output speed by 10 and multiplies output torque by 10.",
+          "options": [],
+          "tags": [
+            "gearbox",
+            "gear-reduction"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-act-dcmotor-006",
+          "type": "mcq",
+          "question": "When sizing a motor driver/H-bridge's current rating, which current value should it be rated against?",
+          "answer": "Stall current",
+          "options": [
+            "Typical running current",
+            "No-load current",
+            "Stall current",
+            "Average current over a full mission"
+          ],
+          "tags": [
+            "motor-driver",
+            "stall-current"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-act-dcmotor-007",
+          "type": "qa",
+          "question": "A gear motor is marketed as '100 RPM, high torque.' What is it actually made of?",
+          "answer": "A DC motor that is naturally fast and low-torque, combined with a gearbox that trades speed for torque at a fixed ratio, not a fundamentally different motor design.",
+          "options": [],
+          "tags": [
+            "gearbox",
+            "dc-motor"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-act-dcmotor-008",
+          "type": "qa",
+          "question": "In SI units, how do a DC motor's torque constant (Kt) and back-EMF constant (Ke) relate to each other?",
+          "answer": "They are numerically equal.",
+          "options": [],
+          "tags": [
+            "dc-motor",
+            "motor-constants"
+          ],
+          "weight_seed": 1.3
+        }
+      ]
+    },
+    {
+      "id": "mechanical/kinematics/forward-inverse-kinematics",
+      "pillar": "mechanical",
+      "module": "kinematics",
+      "topic": "forward-inverse-kinematics",
+      "difficulty_base": 3,
+      "notes_path": "subjects/mechanical/kinematics/forward-inverse-kinematics/notes.md",
+      "has_audio": false,
+      "cards": [
+        {
+          "id": "mech-kin-fik-001",
+          "type": "qa",
+          "question": "What is the fundamental difference between what forward kinematics and inverse kinematics solve for?",
+          "answer": "Forward kinematics takes joint angles and computes end-effector pose; inverse kinematics takes a desired end-effector pose and computes the joint angles needed to reach it.",
+          "options": [],
+          "tags": [
+            "fk",
+            "ik",
+            "kinematics"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-kin-fik-002",
+          "type": "qa",
+          "question": "Why does forward kinematics always have exactly one solution, while inverse kinematics may have zero, one, or many?",
+          "answer": "FK is a direct chain of matrix multiplications from known joint values, so it's a deterministic computation. IK inverts that mapping, and multiple joint configurations (e.g. elbow-up vs elbow-down) can produce the same end-effector pose, or none can if the pose is unreachable.",
+          "options": [],
+          "tags": [
+            "fk",
+            "ik"
+          ],
+          "weight_seed": 1.1
+        },
+        {
+          "id": "mech-kin-fik-003",
+          "type": "mcq",
+          "question": "How many parameters does the Denavit-Hartenberg (DH) convention use to describe each joint's transform?",
+          "answer": "4",
+          "options": [
+            "2",
+            "3",
+            "4",
+            "6"
+          ],
+          "tags": [
+            "dh-parameters",
+            "fk"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-kin-fik-004",
+          "type": "qa",
+          "question": "What is a kinematic singularity, and what practical problem does it cause for an IK solver?",
+          "answer": "A configuration where the Jacobian loses rank, meaning the arm loses the ability to move in some direction; near it, small desired end-effector velocities can demand very large or unachievable joint velocities, so solvers must detect and dampen rather than blindly invert the Jacobian.",
+          "options": [],
+          "tags": [
+            "singularity",
+            "jacobian",
+            "ik"
+          ],
+          "weight_seed": 1.3
+        },
+        {
+          "id": "mech-kin-fik-005",
+          "type": "mcq",
+          "question": "How many degrees of freedom are required to reach an arbitrary position and orientation in 3D space?",
+          "answer": "6",
+          "options": [
+            "3",
+            "4",
+            "6",
+            "7"
+          ],
+          "tags": [
+            "dof",
+            "kinematics"
+          ],
+          "weight_seed": 1.0
+        },
+        {
+          "id": "mech-kin-fik-006",
+          "type": "qa",
+          "question": "What does it mean for a manipulator to be 'kinematically redundant', and what's one practical benefit of redundancy?",
+          "answer": "It has more than 6 DOF, so multiple joint configurations can achieve the same end-effector pose; the extra freedom can be used to avoid obstacles or stay away from joint limits while still hitting the target pose.",
+          "options": [],
+          "tags": [
+            "dof",
+            "redundancy"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-kin-fik-007",
+          "type": "qa",
+          "question": "What role does the Jacobian play in numerical/iterative IK solving?",
+          "answer": "The Jacobian relates joint velocities to end-effector velocity; iterative solvers use it (e.g. via transpose or pseudo-inverse) to step the current joint angle guess toward the target pose.",
+          "options": [],
+          "tags": [
+            "jacobian",
+            "ik",
+            "numerical-methods"
+          ],
+          "weight_seed": 1.2
+        },
+        {
+          "id": "mech-kin-fik-008",
+          "type": "mcq",
+          "question": "Which IK solving approach is fastest and exact but only applicable to specific, often simpler arm geometries?",
+          "answer": "Analytical/closed-form",
+          "options": [
+            "Analytical/closed-form",
+            "Numerical/iterative",
+            "Optimization-based",
+            "Monte Carlo sampling"
+          ],
+          "tags": [
+            "ik",
+            "solving-methods"
+          ],
+          "weight_seed": 1.0
+        }
+      ]
+    }
+  ]
+}

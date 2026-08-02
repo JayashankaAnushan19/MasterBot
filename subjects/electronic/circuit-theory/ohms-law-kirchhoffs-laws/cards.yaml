@@ -1,0 +1,76 @@
+topic: "ohms-law-kirchhoffs-laws"
+pillar: "electronic"
+module: "circuit-theory"
+difficulty_base: 1
+cards:
+  - id: "elec-circ-ohmkirch-001"
+    type: "qa"
+    question: "State Ohm's Law and what each variable represents."
+    answer: "V = I x R, where V is voltage across a resistive element, I is current through it, and R is its resistance."
+    options: []
+    tags: ["ohms-law"]
+    weight_seed: 1.0
+
+  - id: "elec-circ-ohmkirch-002"
+    type: "qa"
+    question: "If you double the current through a fixed resistor, what happens to the power it dissipates?"
+    answer: "It quadruples, because power dissipated as heat follows P = I^2 x R, so power scales with the square of current."
+    options: []
+    tags: ["ohms-law", "power"]
+    weight_seed: 1.1
+
+  - id: "elec-circ-ohmkirch-003"
+    type: "qa"
+    question: "State Kirchhoff's Current Law (KCL) in one sentence."
+    answer: "The sum of currents flowing into a node equals the sum of currents flowing out of it."
+    options: []
+    tags: ["kcl"]
+    weight_seed: 1.0
+
+  - id: "elec-circ-ohmkirch-004"
+    type: "qa"
+    question: "State Kirchhoff's Voltage Law (KVL) in one sentence."
+    answer: "The sum of voltage rises and drops around any closed loop in a circuit is zero."
+    options: []
+    tags: ["kvl"]
+    weight_seed: 1.0
+
+  - id: "elec-circ-ohmkirch-005"
+    type: "mcq"
+    question: "For resistors in series, how does total resistance compare to the individual resistors?"
+    answer: "Always larger than any individual resistor"
+    options: ["Always smaller than any individual resistor", "Always larger than any individual resistor", "Always equal to the average", "Depends only on voltage applied"]
+    tags: ["series-resistors"]
+    weight_seed: 1.0
+
+  - id: "elec-circ-ohmkirch-006"
+    type: "mcq"
+    question: "For resistors in parallel, how does total resistance compare to the individual resistors?"
+    answer: "Always smaller than the smallest individual resistor"
+    options: ["Always larger than any individual resistor", "Always equal to the sum", "Always smaller than the smallest individual resistor", "Always equal to the largest resistor"]
+    tags: ["parallel-resistors"]
+    weight_seed: 1.0
+
+  - id: "elec-circ-ohmkirch-007"
+    type: "qa"
+    question: "Write the voltage divider formula for V_out across R2 in a series R1-R2 divider fed by V_in, and name which two laws it combines."
+    answer: "V_out = V_in x R2/(R1+R2); it combines KVL with the series-resistor current relationship (Ohm's Law applied to each resistor)."
+    options: []
+    tags: ["voltage-divider", "kvl"]
+    weight_seed: 1.3
+
+  - id: "elec-circ-ohmkirch-008"
+    type: "qa"
+    question: "A 5V-powered LED needs a current-limiting resistor. The LED drops 2V and should run at 20mA. What resistor value is needed?"
+    answer: "R = (5V - 2V) / 0.02A = 150 ohms."
+    options: []
+    tags: ["ohms-law", "led-resistor"]
+    weight_seed: 1.2
+
+  - id: "elec-circ-ohmkirch-009"
+    type: "qa"
+    question: "A power rail sags under load and every downstream component seems to be drawing current fine individually. What should you check first using KCL before blaming the regulator?"
+    answer: "Sum the current draw of every downstream component to see if their total exceeds what the regulator/supply can actually source, since KCL requires all that current to come from somewhere."
+    options: []
+    tags: ["kcl", "debugging"]
+    weight_seed: 1.3

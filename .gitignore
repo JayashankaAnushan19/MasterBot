@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.vscode/
+.idea/
+
+# Python (tools/build_index.py, Stage 2+)
+__pycache__/
+*.pyc
+.venv/
+
+# Gradle / Kotlin / Android (engine/, app/)
+.gradle/
+build/
+*/build/
+local.properties
+captures/
+.cxx/
+*.apk
+*.aab
+*.jks
+*.keystore
+!gradle/wrapper/gradle-wrapper.jar

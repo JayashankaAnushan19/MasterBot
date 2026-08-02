@@ -1,0 +1,68 @@
+topic: "ros2-nodes-topics"
+pillar: "it"
+module: "programming"
+difficulty_base: 2
+cards:
+  - id: "it-prog-ros2-001"
+    type: "qa"
+    question: "What is the difference between a ROS2 topic and a service?"
+    answer: "Topics are asynchronous pub/sub streams; services are synchronous request/response calls."
+    options: []
+    tags: ["ros2", "communication"]
+    weight_seed: 1.0
+
+  - id: "it-prog-ros2-002"
+    type: "mcq"
+    question: "Which ROS2 communication pattern is best suited for a Nav2 goal that reports progress and can be cancelled?"
+    answer: "Action"
+    options: ["Topic", "Service", "Action", "Parameter"]
+    tags: ["ros2", "actions"]
+    weight_seed: 1.0
+
+  - id: "it-prog-ros2-003"
+    type: "qa"
+    question: "Why might a subscriber's callback never fire even though the publisher is actively publishing?"
+    answer: "Incompatible QoS profiles between publisher and subscriber (e.g. one is reliable, the other best_effort) prevent them from matching, so no connection is made."
+    options: []
+    tags: ["ros2", "qos"]
+    weight_seed: 1.0
+
+  - id: "it-prog-ros2-004"
+    type: "mcq"
+    question: "Which QoS durability setting lets a late-joining subscriber still receive the last published message, useful for a /map topic?"
+    answer: "transient_local"
+    options: ["volatile", "transient_local", "best_effort", "reliable"]
+    tags: ["ros2", "qos"]
+    weight_seed: 1.0
+
+  - id: "it-prog-ros2-005"
+    type: "qa"
+    question: "Why does ROS2 not need a central master process like ROS1's roscore?"
+    answer: "Node discovery happens automatically via DDS discovery, so nodes can find each other and connect regardless of start order without a central registry."
+    options: []
+    tags: ["ros2", "dds", "discovery"]
+    weight_seed: 1.0
+
+  - id: "it-prog-ros2-006"
+    type: "qa"
+    question: "A ROS2 node stops responding to all of its subscriptions and timers at once, even though only one callback is doing slow work. What's the likely cause?"
+    answer: "A single-threaded executor is running all callbacks on one queue; the slow callback blocks the executor thread, so every other callback on that node stalls behind it."
+    options: []
+    tags: ["ros2", "executors"]
+    weight_seed: 1.2
+
+  - id: "it-prog-ros2-007"
+    type: "mcq"
+    question: "For a high-rate lidar scan topic where an occasional dropped message is acceptable but low latency matters, which reliability QoS setting is more appropriate?"
+    answer: "best_effort"
+    options: ["reliable", "best_effort", "transient_local", "volatile"]
+    tags: ["ros2", "qos"]
+    weight_seed: 1.1
+
+  - id: "it-prog-ros2-008"
+    type: "qa"
+    question: "Why is a ROS2 service a poor fit for a long-running arm trajectory execution?"
+    answer: "A service call blocks until a single response arrives with no built-in mechanism for progress feedback or mid-flight cancellation, both of which a long trajectory needs."
+    options: []
+    tags: ["ros2", "services", "actions"]
+    weight_seed: 1.0

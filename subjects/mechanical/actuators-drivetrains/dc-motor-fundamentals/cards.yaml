@@ -1,0 +1,68 @@
+topic: "dc-motor-fundamentals"
+pillar: "mechanical"
+module: "actuators-drivetrains"
+difficulty_base: 2
+cards:
+  - id: "mech-act-dcmotor-001"
+    type: "qa"
+    question: "At what point on a DC motor's torque-speed curve is torque at its maximum, and why?"
+    answer: "At stall (zero speed): back-EMF is zero at zero speed, so current through the windings is maximum, and since torque is proportional to current, torque is also at its maximum."
+    options: []
+    tags: ["dc-motor", "torque-speed-curve"]
+    weight_seed: 1.1
+
+  - id: "mech-act-dcmotor-002"
+    type: "qa"
+    question: "Why is stalling a DC motor under load for an extended time dangerous for the motor?"
+    answer: "Stall current is the motor's maximum current draw, which means maximum resistive heating in the windings, so a sustained stall can burn the motor out."
+    options: []
+    tags: ["dc-motor", "stall-current"]
+    weight_seed: 1.2
+
+  - id: "mech-act-dcmotor-003"
+    type: "mcq"
+    question: "Which method of DC motor speed control is most power-efficient?"
+    answer: "PWM (pulse width modulation)"
+    options: ["Linear voltage regulation", "PWM (pulse width modulation)", "Series resistor", "Reducing supply voltage permanently"]
+    tags: ["dc-motor", "pwm"]
+    weight_seed: 1.0
+
+  - id: "mech-act-dcmotor-004"
+    type: "qa"
+    question: "Why is a linear voltage regulator a less efficient way to control DC motor speed than PWM?"
+    answer: "A linear regulator dissipates the difference between supply and effective voltage as heat, wasting power, whereas PWM switches the full voltage on and off, which loses very little energy to heat."
+    options: []
+    tags: ["dc-motor", "pwm", "efficiency"]
+    weight_seed: 1.1
+
+  - id: "mech-act-dcmotor-005"
+    type: "qa"
+    question: "What does a 10:1 gearbox do to a DC motor's output speed and torque (ignoring mechanical losses)?"
+    answer: "It roughly divides output speed by 10 and multiplies output torque by 10."
+    options: []
+    tags: ["gearbox", "gear-reduction"]
+    weight_seed: 1.0
+
+  - id: "mech-act-dcmotor-006"
+    type: "mcq"
+    question: "When sizing a motor driver/H-bridge's current rating, which current value should it be rated against?"
+    answer: "Stall current"
+    options: ["Typical running current", "No-load current", "Stall current", "Average current over a full mission"]
+    tags: ["motor-driver", "stall-current"]
+    weight_seed: 1.2
+
+  - id: "mech-act-dcmotor-007"
+    type: "qa"
+    question: "A gear motor is marketed as '100 RPM, high torque.' What is it actually made of?"
+    answer: "A DC motor that is naturally fast and low-torque, combined with a gearbox that trades speed for torque at a fixed ratio, not a fundamentally different motor design."
+    options: []
+    tags: ["gearbox", "dc-motor"]
+    weight_seed: 1.0
+
+  - id: "mech-act-dcmotor-008"
+    type: "qa"
+    question: "In SI units, how do a DC motor's torque constant (Kt) and back-EMF constant (Ke) relate to each other?"
+    answer: "They are numerically equal."
+    options: []
+    tags: ["dc-motor", "motor-constants"]
+    weight_seed: 1.3

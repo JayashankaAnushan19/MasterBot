@@ -1,0 +1,49 @@
+name: Build index.json
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "subjects/**"
+      - "schema/**"
+      - "rules/**"
+      - "tools/**"
+      - ".github/workflows/build-index.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-index-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r tools/requirements.txt
+
+      - name: Validate content and build index.json
+        run: python tools/build_index.py
+
+      - name: Commit index.json if changed
+        run: |
+          if git diff --quiet -- index.json; then
+            echo "index.json unchanged, nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "chore: rebuild index.json [skip ci]"
+          git push

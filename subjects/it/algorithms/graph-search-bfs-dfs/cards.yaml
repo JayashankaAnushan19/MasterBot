@@ -1,0 +1,68 @@
+topic: "graph-search-bfs-dfs"
+pillar: "it"
+module: "algorithms"
+difficulty_base: 2
+cards:
+  - id: "it-algo-bfsdfs-001"
+    type: "qa"
+    question: "What key guarantee does BFS provide on an unweighted graph that DFS does not?"
+    answer: "BFS guarantees the shortest path in terms of edge count; DFS only guarantees finding a path, not the shortest one."
+    options: []
+    tags: ["bfs", "dfs", "graphs"]
+    weight_seed: 1.0
+
+  - id: "it-algo-bfsdfs-002"
+    type: "mcq"
+    question: "Which data structure does BFS use to track the frontier of nodes to visit?"
+    answer: "FIFO queue"
+    options: ["LIFO stack", "FIFO queue", "Priority queue", "Hash set"]
+    tags: ["bfs", "data-structures"]
+    weight_seed: 1.0
+
+  - id: "it-algo-bfsdfs-003"
+    type: "qa"
+    question: "What is the time complexity of both BFS and DFS on a graph with an adjacency-list representation, and why?"
+    answer: "O(V + E): every vertex is visited once and every edge is examined once."
+    options: []
+    tags: ["bfs", "dfs", "complexity"]
+    weight_seed: 1.0
+
+  - id: "it-algo-bfsdfs-004"
+    type: "qa"
+    question: "You need to find dependency startup order for a set of ROS2 nodes with 'must start after' constraints. Which traversal-based technique fits, and which underlying search does it use?"
+    answer: "Topological sort, which is built on DFS."
+    options: []
+    tags: ["dfs", "topological-sort"]
+    weight_seed: 1.1
+
+  - id: "it-algo-bfsdfs-005"
+    type: "mcq"
+    question: "Why might DFS be preferred over BFS when memory is tightly constrained?"
+    answer: "DFS frontier size is O(depth), while BFS frontier size can be O(branching_factor^depth)"
+    options: ["DFS is always faster asymptotically", "DFS frontier size is O(depth), while BFS frontier size can be O(branching_factor^depth)", "DFS always finds the shortest path", "BFS cannot be implemented iteratively"]
+    tags: ["dfs", "bfs", "memory"]
+    weight_seed: 1.1
+
+  - id: "it-algo-bfsdfs-006"
+    type: "qa"
+    question: "Your occupancy-grid path planner needs to account for varying terrain cost, not just cell count. Why is plain BFS no longer sufficient, and what's the next algorithm to reach for?"
+    answer: "BFS treats every edge as equal cost, so it can't represent weighted terrain; Dijkstra (or A* with a heuristic) replaces the FIFO queue with a priority queue ordered by accumulated cost."
+    options: []
+    tags: ["bfs", "dijkstra", "path-planning"]
+    weight_seed: 1.2
+
+  - id: "it-algo-bfsdfs-007"
+    type: "qa"
+    question: "What does A* add on top of Dijkstra's algorithm, and what effect does that typically have?"
+    answer: "A* adds a heuristic estimate of remaining distance to the goal, which usually lets it explore fewer nodes and reach the goal faster in practice for point-to-point search."
+    options: []
+    tags: ["astar", "dijkstra", "path-planning"]
+    weight_seed: 1.1
+
+  - id: "it-algo-bfsdfs-008"
+    type: "mcq"
+    question: "Which traversal is the natural fit for detecting a cycle in a graph?"
+    answer: "DFS"
+    options: ["BFS", "DFS", "Binary search", "Union-Find only, no traversal needed"]
+    tags: ["dfs", "cycle-detection"]
+    weight_seed: 1.0
