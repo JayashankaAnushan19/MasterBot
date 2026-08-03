@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.CardStateEntity
-import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.RepoSync
 import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.CardReviewState
@@ -29,6 +28,10 @@ data class TopicNode(
 )
 data class PillarSection(val pillar: String, val topics: List<TopicNode>)
 
+data class QuizStageNode(val stageIndex: Int, val locked: Boolean, val timesCompleted: Int)
+
+private const val QUIZ_STAGE_COUNT = 5
+
 sealed interface HomeUiState {
     data object Loading : HomeUiState
     data class SyncFailed(val message: String) : HomeUiState
@@ -38,6 +41,8 @@ sealed interface HomeUiState {
         val longestStreak: Int,
         val avatarTier: Int, // 1..5
         val pillars: List<PillarSection>,
+        val quizChallengesUnlocked: Boolean,
+        val quizStages: List<QuizStageNode>,
     ) : HomeUiState
 }
 
@@ -82,18 +87,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun resetTopic(topicId: String) {
         viewModelScope.launch {
             dao.deleteCardStatesForTopic(topicId)
-            loadDashboard()
-        }
-    }
-
-    /** Resets all learning progress (every card's review state, coins, streaks). Leaves
-     * content and the user's name/notification prefs untouched. */
-    fun resetAllProgress() {
-        viewModelScope.launch {
-            dao.deleteAllCardStates()
-            dao.upsertUserProgress(
-                UserProgressEntity(totalCoins = 0, currentStreak = 0, longestStreak = 0, lastGoalMetEpochDay = null),
-            )
             loadDashboard()
         }
     }
@@ -157,12 +150,30 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val maxScore = (moduleTiers.size * 3).coerceAtLeast(1)
         val avatarTier = avatarTierFor(badgeScore.toDouble() / maxScore)
 
+        // Quiz Challenges unlocks once the first topic in every pillar is complete --
+        // a foundational readiness gate before mixed-subject reinforcement quizzes appear.
+        val quizChallengesUnlocked = pillars.size == 3 && pillars.all { it.topics.firstOrNull()?.completed == true }
+        val quizProgressByStage = dao.allQuizStageProgress().associateBy { it.stageIndex }
+        val quizStages = if (quizChallengesUnlocked) {
+            var previousDone = true // stage 1 always unlocked once the section itself is
+            (1..QUIZ_STAGE_COUNT).map { stageIndex ->
+                val timesCompleted = quizProgressByStage[stageIndex]?.timesCompleted ?: 0
+                val locked = !previousDone
+                previousDone = timesCompleted > 0
+                QuizStageNode(stageIndex = stageIndex, locked = locked, timesCompleted = timesCompleted)
+            }
+        } else {
+            emptyList()
+        }
+
         _uiState.value = HomeUiState.Ready(
             totalCoins = progress?.totalCoins ?: 0,
             currentStreak = progress?.currentStreak ?: 0,
             longestStreak = progress?.longestStreak ?: 0,
             avatarTier = avatarTier,
             pillars = pillars,
+            quizChallengesUnlocked = quizChallengesUnlocked,
+            quizStages = quizStages,
         )
     }
 

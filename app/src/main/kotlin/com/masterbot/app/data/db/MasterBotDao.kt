@@ -70,6 +70,15 @@ interface MasterBotDao {
     @Query("UPDATE gift_redemptions SET usedEpochDay = :usedEpochDay WHERE id = :id")
     suspend fun markRedemptionUsed(id: Long, usedEpochDay: Long)
 
+    @Query("SELECT * FROM quiz_stage_progress ORDER BY stageIndex")
+    suspend fun allQuizStageProgress(): List<QuizStageProgressEntity>
+
+    @Upsert
+    suspend fun upsertQuizStageProgress(progress: QuizStageProgressEntity)
+
+    @Query("DELETE FROM quiz_stage_progress")
+    suspend fun deleteAllQuizStageProgress()
+
     @Transaction
     suspend fun replaceContent(topics: List<TopicEntity>, cards: List<CardEntity>, seedStates: List<CardStateEntity>) {
         upsertTopics(topics)

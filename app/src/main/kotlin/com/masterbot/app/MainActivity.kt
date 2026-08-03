@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -55,13 +56,14 @@ private fun MasterBotNavHost(application: Application) {
                 onStartTopic = { topicId ->
                     navController.navigate("review/${encodeTopicId(topicId)}")
                 },
+                onStartQuizStage = { stageIndex -> navController.navigate("quiz/$stageIndex") },
                 onOpenProfile = { navController.navigate("profile") },
                 onOpenRedeem = { navController.navigate("redeem") },
             )
         }
         composable("review") {
             val viewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(application, topicId = null))
-            ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
+            ReviewScreen(onHome = { navController.goHome() }, viewModel = viewModel)
         }
         composable(
             "review/{topicId}",
@@ -70,7 +72,17 @@ private fun MasterBotNavHost(application: Application) {
             val encodedTopicId = backStackEntry.arguments?.getString("topicId")
             val topicId = encodedTopicId?.let { decodeTopicId(it) }
             val viewModel: ReviewViewModel = viewModel(factory = ReviewViewModel.Factory(application, topicId = topicId))
-            ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
+            ReviewScreen(onHome = { navController.goHome() }, viewModel = viewModel)
+        }
+        composable(
+            "quiz/{stageIndex}",
+            arguments = listOf(navArgument("stageIndex") { type = NavType.IntType }),
+        ) { backStackEntry ->
+            val stageIndex = backStackEntry.arguments?.getInt("stageIndex") ?: 1
+            val viewModel: ReviewViewModel = viewModel(
+                factory = ReviewViewModel.Factory(application, quizStageIndex = stageIndex),
+            )
+            ReviewScreen(onHome = { navController.goHome() }, viewModel = viewModel)
         }
         composable("profile") {
             ProfileScreen(
@@ -94,3 +106,12 @@ private fun MasterBotNavHost(application: Application) {
 // and never touches Navigation's own URI parsing at all.
 private fun encodeTopicId(topicId: String) = topicId.replace("/", "~")
 private fun decodeTopicId(encoded: String) = encoded.replace("~", "/")
+
+/** Always lands cleanly on Home regardless of how deep navigation got, rather than
+ * just popping one level -- used by every review/quiz screen's explicit Home button. */
+private fun NavController.goHome() {
+    navigate("home") {
+        popUpTo("home") { inclusive = true }
+        launchSingleTop = true
+    }
+}

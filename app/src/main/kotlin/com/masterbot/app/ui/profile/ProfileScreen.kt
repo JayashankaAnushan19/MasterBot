@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -25,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -52,6 +54,24 @@ fun ProfileScreen(onBack: () -> Unit, onOpenAbout: () -> Unit, viewModel: Profil
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted -> viewModel.setNotificationsEnabled(enabled = true, granted = granted) }
+
+    var confirmResetAll by remember { mutableStateOf(false) }
+    if (confirmResetAll) {
+        AlertDialog(
+            onDismissRequest = { confirmResetAll = false },
+            title = { Text("Reset all progress?") },
+            text = { Text("Every topic and quiz stage goes back to Not started, and coins/streak reset to 0. This can't be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.resetAllProgress()
+                    confirmResetAll = false
+                }) { Text("Reset everything") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmResetAll = false }) { Text("Cancel") }
+            },
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -140,11 +160,34 @@ fun ProfileScreen(onBack: () -> Unit, onOpenAbout: () -> Unit, viewModel: Profil
                 Spacer(Modifier.height(32.dp))
                 HorizontalDivider()
                 Spacer(Modifier.height(8.dp))
-                androidx.compose.material3.TextButton(
+                TextButton(
                     onClick = onOpenAbout,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("About MasterBot")
+                }
+
+                Spacer(Modifier.height(32.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(24.dp))
+                Text(
+                    "Danger zone",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Reset every topic, quiz stage, coin and streak back to zero.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Spacer(Modifier.height(12.dp))
+                Button(
+                    onClick = { confirmResetAll = true },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) {
+                    Text("Reset all progress")
                 }
             }
         }

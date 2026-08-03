@@ -5,9 +5,12 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,8 +31,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,16 +48,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -71,6 +76,7 @@ import com.masterbot.engine.MasteryTier
 fun HomeScreen(
     onStartTodayReview: () -> Unit,
     onStartTopic: (String) -> Unit,
+    onStartQuizStage: (Int) -> Unit,
     onOpenProfile: () -> Unit,
     onOpenRedeem: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
@@ -139,8 +145,8 @@ fun HomeScreen(
                     state = s,
                     onStartTodayReview = onStartTodayReview,
                     onStartTopic = onStartTopic,
+                    onStartQuizStage = onStartQuizStage,
                     onResetTopic = viewModel::resetTopic,
-                    onResetAll = viewModel::resetAllProgress,
                 )
             }
         }
@@ -164,7 +170,7 @@ private fun PulsingAvatarLoading() {
     )
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            androidx.compose.foundation.Image(
+            Image(
                 painter = painterResource(R.drawable.avatar_tier_1),
                 contentDescription = null,
                 modifier = Modifier.size(96.dp).scale(scale).alpha(alpha),
@@ -180,11 +186,10 @@ private fun HomeReadyContent(
     state: HomeUiState.Ready,
     onStartTodayReview: () -> Unit,
     onStartTopic: (String) -> Unit,
+    onStartQuizStage: (Int) -> Unit,
     onResetTopic: (String) -> Unit,
-    onResetAll: () -> Unit,
 ) {
     var topicPendingReset by remember { mutableStateOf<TopicNode?>(null) }
-    var confirmResetAll by remember { mutableStateOf(false) }
 
     topicPendingReset?.let { topic ->
         AlertDialog(
@@ -203,23 +208,6 @@ private fun HomeReadyContent(
         )
     }
 
-    if (confirmResetAll) {
-        AlertDialog(
-            onDismissRequest = { confirmResetAll = false },
-            title = { Text("Reset all progress?") },
-            text = { Text("Every topic goes back to Not started, and coins/streak reset to 0. This can't be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onResetAll()
-                    confirmResetAll = false
-                }) { Text("Reset everything") }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmResetAll = false }) { Text("Cancel") }
-            },
-        )
-    }
-
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             StatHeader(state)
@@ -230,35 +218,54 @@ private fun HomeReadyContent(
             ) {
                 Text("Start today's review")
             }
-            Spacer(Modifier.height(8.dp))
-            TextButton(
-                onClick = { confirmResetAll = true },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Reset all progress", style = MaterialTheme.typography.labelMedium)
-            }
             Text(
                 "Tip: long-press a topic below to reset just that one",
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+                textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
         }
 
         state.pillars.forEach { section ->
-            item { PillarHeader(section.pillar) }
+            item { SectionBanner(pillarStyles[section.pillar]?.label ?: section.pillar, pillarStyles[section.pillar]?.glyph ?: "•", pillarAccent(section.pillar)) }
+            val currentIndex = section.topics.indexOfFirst { !it.locked && !it.completed }
             itemsIndexed(section.topics) { index, topic ->
-                TopicPathNode(
+                PathNode(
                     index = index,
-                    node = topic,
+                    title = topic.title,
+                    locked = topic.locked,
+                    isCurrent = index == currentIndex,
+                    badgeGlyph = if (topic.locked) "🔒" else badgeGlyph(topic.tier),
+                    badgeColor = if (topic.locked) LOCKED_COLOR else tierColors.getValue(topic.tier),
+                    statusLabel = statusLabel(topic),
                     accent = pillarAccent(section.pillar),
                     onClick = { if (!topic.locked) onStartTopic(topic.topicId) },
                     onLongClick = { if (!topic.locked) topicPendingReset = topic },
                 )
             }
-            item { Spacer(Modifier.height(12.dp)) }
+            item { Spacer(Modifier.height(24.dp)) }
+        }
+
+        if (state.quizChallengesUnlocked) {
+            item { SectionBanner("Quiz Challenges", "🧠", QUIZ_ACCENT) }
+            val currentQuizIndex = state.quizStages.indexOfFirst { !it.locked && it.timesCompleted == 0 }
+            itemsIndexed(state.quizStages) { index, stage ->
+                PathNode(
+                    index = index,
+                    title = "Quiz ${stage.stageIndex}",
+                    locked = stage.locked,
+                    isCurrent = index == currentQuizIndex,
+                    badgeGlyph = if (stage.locked) "🔒" else if (stage.timesCompleted > 0) "⭐" else "🧠",
+                    badgeColor = if (stage.locked) LOCKED_COLOR else QUIZ_ACCENT,
+                    statusLabel = if (stage.locked) "Locked" else if (stage.timesCompleted > 0) "Completed x${stage.timesCompleted}" else "Not started",
+                    accent = QUIZ_ACCENT,
+                    onClick = { if (!stage.locked) onStartQuizStage(stage.stageIndex) },
+                    onLongClick = null,
+                )
+            }
+            item { Spacer(Modifier.height(24.dp)) }
         }
     }
 }
@@ -277,7 +284,7 @@ private fun StatHeader(state: HomeUiState.Ready) {
             4 -> R.drawable.avatar_tier_4
             else -> R.drawable.avatar_tier_5
         }
-        androidx.compose.foundation.Image(
+        Image(
             painter = painterResource(avatarRes),
             contentDescription = "Robot avatar, tier ${state.avatarTier}",
             contentScale = ContentScale.Fit,
@@ -300,34 +307,35 @@ private val pillarStyles = mapOf(
     "mechanical" to PillarStyle("Mechanical", "⚙️", Color(0xFFFFB74D)),
     "electronic" to PillarStyle("Electronic", "🔌", Color(0xFFBA68C8)),
 )
+private val QUIZ_ACCENT = Color(0xFFFFC107)
+private val LOCKED_COLOR = Color(0xFF3A4552)
 
 private fun pillarAccent(pillar: String): Color = pillarStyles[pillar]?.accent ?: Color(0xFF00E5A0)
 
+/** Chunky, solid-colored unit banner -- the Duolingo "section header" look, replacing
+ * the earlier small circle+text row. */
 @Composable
-private fun PillarHeader(pillar: String) {
-    val style = pillarStyles[pillar]
-    Row(
+private fun SectionBanner(label: String, glyph: String, accent: Color) {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(accent),
     ) {
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clip(CircleShape)
-                .background((style?.accent ?: Color.Gray).copy(alpha = 0.2f)),
-            contentAlignment = Alignment.Center,
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(style?.glyph ?: "•", style = MaterialTheme.typography.labelSmall)
+            Text(glyph, style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                label,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
         }
-        Spacer(Modifier.width(8.dp))
-        Text(
-            style?.label ?: pillar.replaceFirstChar(Char::uppercase),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = style?.accent ?: MaterialTheme.colorScheme.onBackground,
-        )
     }
 }
 
@@ -338,78 +346,108 @@ private val tierColors = mapOf(
     MasteryTier.GOLD to Color(0xFFFFD700),
 )
 
+/** Gentle side-to-side sway instead of a hard 3-position cycle -- reads as one
+ * continuous winding path down the screen, closer to Duolingo's actual path shape. */
+private val PATH_SWAY = listOf(0.5f, 0.78f, 0.5f, 0.22f)
+private fun xFractionForIndex(index: Int): Float = PATH_SWAY[index % PATH_SWAY.size]
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TopicPathNode(index: Int, node: TopicNode, accent: Color, onClick: () -> Unit, onLongClick: () -> Unit) {
-    val alignment = when (index % 3) {
-        0 -> Alignment.Start
-        1 -> Alignment.CenterHorizontally
-        else -> Alignment.End
-    }
-    val badgeColor = if (node.locked) Color(0xFF2A323C) else tierColors.getValue(node.tier)
+private fun PathNode(
+    index: Int,
+    title: String,
+    locked: Boolean,
+    isCurrent: Boolean,
+    badgeGlyph: String,
+    badgeColor: Color,
+    statusLabel: String,
+    accent: Color,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)?,
+) {
+    val xFraction = xFractionForIndex(index)
+    val prevXFraction = if (index == 0) xFraction else xFractionForIndex(index - 1)
+    val lineColor = Color(0xFF3A4552)
 
-    Box(modifier = Modifier.fillMaxWidth().height(96.dp)) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val x = size.width / 2f
-            drawLine(
-                color = Color(0xFF3A4552),
-                start = Offset(x, 0f),
-                end = Offset(x, size.height),
-                strokeWidth = 4f,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f)),
-            )
-        }
-        Card(
-            modifier = Modifier
-                .align(
-                    when (alignment) {
-                        Alignment.Start -> Alignment.CenterStart
-                        Alignment.End -> Alignment.CenterEnd
-                        else -> Alignment.Center
-                    },
-                )
-                .padding(horizontal = 24.dp)
-                .combinedClickable(enabled = !node.locked, onClick = onClick, onLongClick = onLongClick),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (node.locked) {
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
-                } else {
-                    MaterialTheme.colorScheme.surface
-                },
-            ),
-            border = if (!node.locked) {
-                androidx.compose.foundation.BorderStroke(1.dp, accent.copy(alpha = 0.5f))
-            } else {
-                null
-            },
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier.size(44.dp).clip(CircleShape).background(badgeColor),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(if (node.locked) "🔒" else badgeGlyph(node.tier), style = MaterialTheme.typography.titleSmall)
+    Box(modifier = Modifier.fillMaxWidth().height(132.dp)) {
+        if (index > 0) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val startX = prevXFraction * size.width
+                val endX = xFraction * size.width
+                val midY = size.height * 0.55f
+                val path = Path().apply {
+                    moveTo(startX, 0f)
+                    quadraticTo(startX, midY, (startX + endX) / 2f, midY)
+                    quadraticTo(endX, midY, endX, size.height - 44.dp.toPx())
                 }
-                Spacer(Modifier.width(12.dp))
-                Column {
-                    Text(
-                        node.title,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (node.locked) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                    )
-                    Text(statusLabel(node), style = MaterialTheme.typography.labelSmall)
-                }
+                drawPath(path, color = lineColor, style = Stroke(width = 8f, cap = StrokeCap.Round))
             }
         }
+
+        Column(
+            modifier = Modifier
+                .align(BiasAlignment(horizontalBias = xFraction * 2f - 1f, verticalBias = 1f))
+                .padding(bottom = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                if (isCurrent) {
+                    PulsingRing(accent)
+                }
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(CircleShape)
+                        .background(badgeColor)
+                        .combinedClickable(
+                            enabled = !locked,
+                            onClick = onClick,
+                            onLongClick = onLongClick,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(badgeGlyph, style = MaterialTheme.typography.headlineSmall)
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                title,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                color = if (locked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) else MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                statusLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = accent.takeIf { !locked } ?: MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
+}
+
+/** Expanding, fading ring around the "start here" node -- the one obvious next tap. */
+@Composable
+private fun PulsingRing(accent: Color) {
+    val transition = rememberInfiniteTransition(label = "ring")
+    val scale by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.4f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Restart),
+        label = "ringScale",
+    )
+    val alpha by transition.animateFloat(
+        initialValue = 0.7f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Restart),
+        label = "ringAlpha",
+    )
+    Box(
+        modifier = Modifier
+            .size(72.dp)
+            .scale(scale)
+            .clip(CircleShape)
+            .border(BorderStroke(3.dp, accent.copy(alpha = alpha)), CircleShape),
+    )
 }
 
 private fun statusLabel(node: TopicNode): String = when {

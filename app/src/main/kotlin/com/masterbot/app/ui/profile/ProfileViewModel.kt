@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.UserProfileEntity
+import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.SyncState
 import com.masterbot.app.notifications.NotificationScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +52,18 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     fun checkForUpdates() = syncCoordinator.checkForUpdates()
     fun pullUpdate() = syncCoordinator.applyPendingUpdate()
     fun dismissUpdate() = syncCoordinator.dismissUpdate()
+
+    /** Resets all learning progress (every card's review state, coins, streaks, quiz
+     * stage progress). Leaves content and the user's name/notification prefs untouched. */
+    fun resetAllProgress() {
+        viewModelScope.launch {
+            dao.deleteAllCardStates()
+            dao.deleteAllQuizStageProgress()
+            dao.upsertUserProgress(
+                UserProgressEntity(totalCoins = 0, currentStreak = 0, longestStreak = 0, lastGoalMetEpochDay = null),
+            )
+        }
+    }
 
     private fun persist() {
         viewModelScope.launch {

@@ -9,12 +9,14 @@ import com.masterbot.app.MasterBotApplication
 import com.masterbot.app.data.db.AppDatabase
 import com.masterbot.app.data.db.CardEntity
 import com.masterbot.app.data.db.CardStateEntity
+import com.masterbot.app.data.db.QuizStageProgressEntity
 import com.masterbot.app.data.db.UserProgressEntity
 import com.masterbot.app.data.sync.RepoSync
 import com.masterbot.app.data.sync.SyncState
 import com.masterbot.engine.AnswerEvent
 import com.masterbot.engine.CardReviewState
 import com.masterbot.engine.DailyQueueBuilder
+import com.masterbot.engine.McqGenerator
 import com.masterbot.engine.ModuleHealth
 import com.masterbot.engine.RewardsEngine
 import com.masterbot.engine.SrsEngine
@@ -46,17 +48,25 @@ sealed interface ReviewUiState {
 
     /** Shown once, right before the true end (AllCaughtUp) -- a recap of this visit's answers. */
     data class SessionSummary(val answers: List<SessionAnswer>, val reviewedToday: Int) : ReviewUiState
+
+    /** Quiz Challenges mode's true end -- a fixed-size stage, no "keep practicing". */
+    data class QuizStageComplete(val reviewedToday: Int) : ReviewUiState
 }
 
 data class SessionAnswer(val question: String, val correctAnswer: String, val wasCorrect: Boolean)
 
+private const val QUIZ_STAGE_SIZE = 8
+
 /**
  * @param topicId null = today's goal-based queue (daily review flow). Set = practice
  *   every card in that one topic, ignoring due-dates/goal caps (deliberate practice).
+ * @param quizStageIndex set = a Quiz Challenges stage instead: a fixed-size, auto-generated
+ *   MCQ quiz mixing cards already completed across all pillars (mutually exclusive with [topicId]).
  */
 class ReviewViewModel(
     application: Application,
     private val topicId: String? = null,
+    private val quizStageIndex: Int? = null,
 ) : AndroidViewModel(application) {
 
     private val dao = AppDatabase.get(application).dao()
@@ -65,6 +75,10 @@ class ReviewViewModel(
 
     private val _uiState = MutableStateFlow<ReviewUiState>(ReviewUiState.Syncing)
     val uiState: StateFlow<ReviewUiState> = _uiState.asStateFlow()
+
+    private val _totalCoins = MutableStateFlow(0)
+    /** Persistent running total, shown in the top bar alongside the transient "+N" pop. */
+    val totalCoins: StateFlow<Int> = _totalCoins.asStateFlow()
 
     private lateinit var engine: SrsEngine
     private lateinit var rules: AdaptationRules
@@ -106,6 +120,7 @@ class ReviewViewModel(
             longestStreak = 0,
             lastGoalMetEpochDay = null,
         )
+        _totalCoins.value = progress.totalCoins
         // Seed from persisted state, not just this ViewModel instance's memory --
         // otherwise navigating away and back (a fresh ViewModel) forgets what was
         // already answered today and re-shows cards you just finished.
@@ -115,7 +130,31 @@ class ReviewViewModel(
             .map { it.cardId }
         answeredIdsToday += answeredTodayPersisted
 
-        if (topicId != null) loadTopicQueue(topicId) else loadTodaysQueue()
+        when {
+            quizStageIndex != null -> loadQuizQueue()
+            topicId != null -> loadTopicQueue(topicId)
+            else -> loadTodaysQueue()
+        }
+    }
+
+    /** Quiz Challenges: a fixed-size MCQ quiz sampled from cards already completed across
+     * every pillar, converted to MCQ via [McqGenerator] even if the source card wasn't
+     * authored as one. Answering still updates that card's real SRS state and earns real
+     * coins -- this is a reinforcement pass, not a disconnected side-game. */
+    private suspend fun loadQuizQueue() {
+        val cards = dao.allCards()
+        val states = dao.allCardStates().associateBy { it.cardId }
+        val completedPool = cards
+            .filter { states[it.id]?.lastReviewedEpochDay != null }
+            .map { it.toEngineCard() }
+
+        val quizCards = completedPool
+            .shuffled()
+            .take(QUIZ_STAGE_SIZE)
+            .map { McqGenerator.toMcq(it, distractorPool = completedPool) }
+
+        originalGoalSize = 0 // quiz stages never count toward the daily-goal streak
+        showQueueOrFinish(quizCards)
     }
 
     private suspend fun loadTodaysQueue() {
@@ -171,6 +210,11 @@ class ReviewViewModel(
     /** Called when a queue (today's goal, a topic practice set, or a "keep practicing" batch) runs out. */
     private fun finishSession() {
         viewModelScope.launch {
+            if (quizStageIndex != null) {
+                finishQuizStage(quizStageIndex)
+                return@launch
+            }
+
             val remaining = if (topicId != null) {
                 dao.cardsForTopic(topicId).filter { it.id !in answeredIdsToday }.map { it.toEngineCard() }
             } else {
@@ -190,6 +234,28 @@ class ReviewViewModel(
                 // GoalReached: more is available via "keep practicing", so no recap yet.
                 _uiState.value = ReviewUiState.GoalReached(reviewedToday)
             }
+        }
+    }
+
+    /** A quiz stage is always fixed-size (see QUIZ_STAGE_SIZE), so reaching the end is
+     * always "complete" -- no due-date-driven "more available" branch like topics/daily. */
+    private suspend fun finishQuizStage(stageIndex: Int) {
+        val today = LocalDate.now().toEpochDay()
+        val existing = dao.allQuizStageProgress().find { it.stageIndex == stageIndex }
+        dao.upsertQuizStageProgress(
+            QuizStageProgressEntity(
+                stageIndex = stageIndex,
+                timesCompleted = (existing?.timesCompleted ?: 0) + 1,
+                lastCompletedEpochDay = today,
+            ),
+        )
+
+        val final = ReviewUiState.QuizStageComplete(reviewedToday)
+        _uiState.value = if (sessionAnswers.isEmpty()) {
+            final
+        } else {
+            pendingFinalState = final
+            ReviewUiState.SessionSummary(sessionAnswers.toList(), reviewedToday)
         }
     }
 
@@ -256,9 +322,10 @@ class ReviewViewModel(
             if (coinsEarned > 0) {
                 progress = progress.copy(totalCoins = progress.totalCoins + coinsEarned)
                 dao.upsertUserProgress(progress)
+                _totalCoins.value = progress.totalCoins
             }
 
-            if (topicId == null && !goalCreditedThisSession && reviewedToday >= originalGoalSize && originalGoalSize > 0) {
+            if (topicId == null && quizStageIndex == null && !goalCreditedThisSession && reviewedToday >= originalGoalSize && originalGoalSize > 0) {
                 goalCreditedThisSession = true
                 val newStreak = RewardsEngine.updatedStreak(progress.currentStreak, progress.lastGoalMetEpochDay, today)
                 progress = progress.copy(
@@ -281,11 +348,12 @@ class ReviewViewModel(
 
     class Factory(
         private val application: Application,
-        private val topicId: String?,
+        private val topicId: String? = null,
+        private val quizStageIndex: Int? = null,
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ReviewViewModel(application, topicId) as T
+            ReviewViewModel(application, topicId, quizStageIndex) as T
     }
 }
 

@@ -21,15 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -58,17 +55,25 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReviewScreen(onBack: () -> Unit, viewModel: ReviewViewModel = viewModel()) {
+fun ReviewScreen(onHome: () -> Unit, viewModel: ReviewViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
+    val totalCoins by viewModel.totalCoins.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Review") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to home")
+                    IconButton(onClick = onHome) {
+                        Text("🏠", style = MaterialTheme.typography.titleLarge)
                     }
+                },
+                actions = {
+                    Text(
+                        "🪙 $totalCoins",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(end = 16.dp),
+                    )
                 },
             )
         },
@@ -84,6 +89,7 @@ fun ReviewScreen(onBack: () -> Unit, viewModel: ReviewViewModel = viewModel()) {
                 is ReviewUiState.GoalReached -> GoalReachedContent(reviewedToday = s.reviewedToday, onKeepPracticing = viewModel::keepPracticing)
                 is ReviewUiState.SessionSummary -> SessionSummaryContent(answers = s.answers, onContinue = viewModel::continueFromSummary)
                 is ReviewUiState.AllCaughtUp -> AllCaughtUpContent(reviewedToday = s.reviewedToday)
+                is ReviewUiState.QuizStageComplete -> QuizStageCompleteContent(reviewedToday = s.reviewedToday)
             }
         }
     }
@@ -195,6 +201,22 @@ private fun AllCaughtUpContent(reviewedToday: Int) {
             Spacer(Modifier.height(8.dp))
             Text(
                 if (reviewedToday > 0) "Reviewed $reviewedToday cards today. Nothing left to practice." else "Nothing due right now.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuizStageCompleteContent(reviewedToday: Int) {
+    Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CelebrationBurst()
+            Spacer(Modifier.height(8.dp))
+            Text("Quiz stage complete 🧠", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Answered $reviewedToday questions. Head back to Home for the next stage.",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }

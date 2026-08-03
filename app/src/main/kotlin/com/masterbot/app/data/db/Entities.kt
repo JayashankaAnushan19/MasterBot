@@ -105,3 +105,15 @@ data class GiftRedemptionEntity(
     val claimedEpochDay: Long,
     val usedEpochDay: Long?,
 )
+
+/**
+ * One row per Quiz Challenges stage (see [com.masterbot.engine.McqGenerator]). A stage
+ * unlocks the next once completed at least once, right or wrong doesn't matter -- same
+ * philosophy as topic completion on Home.
+ */
+@Entity(tableName = "quiz_stage_progress")
+data class QuizStageProgressEntity(
+    @PrimaryKey val stageIndex: Int,
+    val timesCompleted: Int,
+    val lastCompletedEpochDay: Long?,
+)
