@@ -7,6 +7,7 @@ import com.masterbot.app.data.db.CardStateEntity
 import com.masterbot.app.data.db.TopicEntity
 import com.masterbot.engine.SrsEngine
 import com.masterbot.engine.model.AdaptationRules
+import com.masterbot.engine.model.GiftCatalog
 import com.masterbot.engine.model.MasterBotIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -89,6 +90,7 @@ class RepoSync(private val context: Context) {
                         optionsJson = Json.encodeToString(card.options),
                         tagsJson = Json.encodeToString(card.tags),
                         weightSeed = card.weightSeed,
+                        imageResourceName = card.image,
                     )
                 }
             }
@@ -118,6 +120,10 @@ class RepoSync(private val context: Context) {
     /** Re-reads and re-parses rules/adaptation_rules.yaml from the last synced clone. */
     fun currentRules(): AdaptationRules =
         AdaptationRules.parse(File(repoDir, "rules/adaptation_rules.yaml").readText())
+
+    /** Re-reads and re-parses rules/gift_catalog.yaml from the last synced clone. */
+    fun currentGiftCatalog(): GiftCatalog =
+        GiftCatalog.parse(File(repoDir, "rules/gift_catalog.yaml").readText())
 
     private fun cloneOrPull() {
         if (File(repoDir, ".git").exists()) {

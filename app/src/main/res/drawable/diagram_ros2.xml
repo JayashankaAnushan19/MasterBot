@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Two nodes connected by a topic (pub/sub arrow) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="220dp"
+    android:height="140dp"
+    android:viewportWidth="120"
+    android:viewportHeight="76">
+    <path android:fillColor="#101820" android:pathData="M0,0h120v76h-120z" />
+
+    <!-- publisher node -->
+    <path
+        android:fillColor="#00E5A0"
+        android:pathData="M12,38 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0" />
+    <!-- subscriber node -->
+    <path
+        android:fillColor="#00B383"
+        android:pathData="M72,38 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0" />
+
+    <!-- topic connector -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M48,38 L68,38" />
+    <path android:fillColor="#00E5A0" android:pathData="M64,32 L76,38 L64,44 Z" />
+</vector>

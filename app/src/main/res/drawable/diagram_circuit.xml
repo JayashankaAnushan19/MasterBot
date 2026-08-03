@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple series loop: battery on the left, resistor zigzag on the bottom -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="180dp"
+    android:viewportWidth="120"
+    android:viewportHeight="90">
+    <path android:fillColor="#101820" android:pathData="M0,0h120v90h-120z" />
+
+    <!-- top wire -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M20,15 L100,15" />
+    <!-- right wire -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M100,15 L100,75" />
+    <!-- bottom wire, split for resistor -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M100,75 L78,75" />
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M42,75 L20,75" />
+    <!-- resistor zigzag -->
+    <path
+        android:strokeColor="#00E5A0"
+        android:strokeWidth="3"
+        android:pathData="M78,75 L72,68 L64,82 L56,68 L48,82 L42,75" />
+    <!-- left wire, split for battery -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M20,15 L20,38" />
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M20,52 L20,75" />
+    <!-- battery symbol (long thin = positive, short thick = negative) -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="2" android:pathData="M8,38 L32,38" />
+    <path android:strokeColor="#00E5A0" android:strokeWidth="5" android:pathData="M12,52 L28,52" />
+</vector>

@@ -10,6 +10,7 @@ cards:
     options: []
     tags: ["ros2", "communication"]
     weight_seed: 1.0
+    image: "diagram_ros2"
 
   - id: "it-prog-ros2-002"
     type: "mcq"

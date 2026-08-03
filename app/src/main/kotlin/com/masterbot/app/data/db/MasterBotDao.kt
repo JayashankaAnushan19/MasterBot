@@ -61,6 +61,15 @@ interface MasterBotDao {
     @Upsert
     suspend fun upsertUserProfile(profile: UserProfileEntity)
 
+    @Insert
+    suspend fun insertRedemption(redemption: GiftRedemptionEntity)
+
+    @Query("SELECT * FROM gift_redemptions ORDER BY claimedEpochDay DESC, id DESC")
+    suspend fun allRedemptions(): List<GiftRedemptionEntity>
+
+    @Query("UPDATE gift_redemptions SET usedEpochDay = :usedEpochDay WHERE id = :id")
+    suspend fun markRedemptionUsed(id: Long, usedEpochDay: Long)
+
     @Transaction
     suspend fun replaceContent(topics: List<TopicEntity>, cards: List<CardEntity>, seedStates: List<CardStateEntity>) {
         upsertTopics(topics)

@@ -43,7 +43,7 @@ import com.masterbot.app.data.sync.SyncState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onBack: () -> Unit, viewModel: ProfileViewModel = viewModel()) {
+fun ProfileScreen(onBack: () -> Unit, onOpenAbout: () -> Unit, viewModel: ProfileViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
     val syncState by viewModel.syncState.collectAsState()
     val context = LocalContext.current
@@ -135,6 +135,16 @@ fun ProfileScreen(onBack: () -> Unit, viewModel: ProfileViewModel = viewModel())
                     }
                     is SyncState.Syncing -> {}
                     else -> Button(onClick = viewModel::checkForUpdates) { Text("Check for updates") }
+                }
+
+                Spacer(Modifier.height(32.dp))
+                HorizontalDivider()
+                Spacer(Modifier.height(8.dp))
+                androidx.compose.material3.TextButton(
+                    onClick = onOpenAbout,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("About MasterBot")
                 }
             }
         }

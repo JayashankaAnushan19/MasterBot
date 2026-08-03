@@ -14,6 +14,8 @@ data class Card(
     val options: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val weightSeed: Double,
+    /** Optional Android drawable resource name shown above the question. Not all cards have one. */
+    val image: String? = null,
 )
 
 /** Mirrors one topic entry in index.json (subjects/<pillar>/<module>/<topic>/). */

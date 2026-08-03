@@ -17,8 +17,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.masterbot.app.ui.about.AboutScreen
 import com.masterbot.app.ui.home.HomeScreen
 import com.masterbot.app.ui.profile.ProfileScreen
+import com.masterbot.app.ui.redeem.RedeemScreen
 import com.masterbot.app.ui.review.ReviewScreen
 import com.masterbot.app.ui.review.ReviewViewModel
 import com.masterbot.app.ui.theme.MasterBotTheme
@@ -54,6 +56,7 @@ private fun MasterBotNavHost(application: Application) {
                     navController.navigate("review/${encodeTopicId(topicId)}")
                 },
                 onOpenProfile = { navController.navigate("profile") },
+                onOpenRedeem = { navController.navigate("redeem") },
             )
         }
         composable("review") {
@@ -70,7 +73,16 @@ private fun MasterBotNavHost(application: Application) {
             ReviewScreen(onBack = { navController.popBackStack() }, viewModel = viewModel)
         }
         composable("profile") {
-            ProfileScreen(onBack = { navController.popBackStack() })
+            ProfileScreen(
+                onBack = { navController.popBackStack() },
+                onOpenAbout = { navController.navigate("about") },
+            )
+        }
+        composable("redeem") {
+            RedeemScreen(onBack = { navController.popBackStack() })
+        }
+        composable("about") {
+            AboutScreen(onBack = { navController.popBackStack() })
         }
     }
 }

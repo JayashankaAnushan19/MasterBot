@@ -12,8 +12,9 @@ import androidx.room.RoomDatabase
         CardStateEntity::class,
         UserProgressEntity::class,
         UserProfileEntity::class,
+        GiftRedemptionEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {

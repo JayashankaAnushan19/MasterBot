@@ -1,0 +1,51 @@
+version: 1
+
+# Real-world reward redemption: coins earned from reviews can be traded for
+# a gift here, which the learner then actually goes and buys themselves.
+# Prices are AED (UAE) market rates, checked against real listings at
+# authoring time. Never hardcode these numbers in app code -- this file is
+# the single source of truth, same as rules/adaptation_rules.yaml.
+
+currency: "AED"
+coins_per_currency_unit: 100  # 100 coins = 1 AED
+
+gifts:
+  - id: "karak-chai"
+    name: "Karak Chai"
+    emoji: "🍵"
+    price: 3.0
+
+  - id: "ice-cream"
+    name: "Ice Cream"
+    emoji: "🍦"
+    price: 10.0
+
+  - id: "fresh-juice"
+    name: "Fresh Juice"
+    emoji: "🥤"
+    price: 12.0
+
+  - id: "shawarma"
+    name: "Shawarma Wrap"
+    emoji: "🌯"
+    price: 15.0
+
+  - id: "mandi"
+    name: "Chicken Mandi Plate"
+    emoji: "🍛"
+    price: 25.0
+
+  - id: "burger-meal"
+    name: "Burger Meal"
+    emoji: "🍔"
+    price: 30.0
+
+  - id: "pizza"
+    name: "Pizza (Medium)"
+    emoji: "🍕"
+    price: 35.0
+
+  - id: "movie-ticket"
+    name: "Movie Ticket"
+    emoji: "🎬"
+    price: 40.0

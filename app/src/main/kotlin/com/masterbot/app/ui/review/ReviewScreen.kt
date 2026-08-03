@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -47,7 +48,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -225,11 +230,32 @@ private fun ReadyContent(
         Spacer(Modifier.height(12.dp))
 
         if (card.type == "mcq" && card.options.isNotEmpty()) {
-            McqContent(question = card.question, options = card.options, correctAnswer = card.answer, cardKey = state.index, onAnswer = onAnswer)
+            McqContent(question = card.question, options = card.options, correctAnswer = card.answer, image = card.image, cardKey = state.index, onAnswer = onAnswer)
         } else {
             SwipeReviewContent(state = state, onReveal = onReveal, onAnswer = onAnswer)
         }
     }
+}
+
+/** Renders a card's optional diagram, if `imageResourceName` resolves to a real shipped
+ * drawable -- silently renders nothing for a null/typo'd name rather than crashing. */
+@Composable
+private fun CardImage(imageResourceName: String?, modifier: Modifier = Modifier) {
+    if (imageResourceName == null) return
+    val context = LocalContext.current
+    val resId = remember(imageResourceName) {
+        context.resources.getIdentifier(imageResourceName, "drawable", context.packageName)
+    }
+    if (resId == 0) return
+    androidx.compose.foundation.Image(
+        painter = painterResource(resId),
+        contentDescription = null,
+        contentScale = ContentScale.Fit,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .clip(RoundedCornerShape(12.dp)),
+    )
 }
 
 @Composable
@@ -256,6 +282,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.SwipeReviewContent(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         item {
+                            CardImage(card.image, modifier = Modifier.padding(bottom = 8.dp))
                             Text(card.type.uppercase(), style = MaterialTheme.typography.labelSmall)
                             Spacer(Modifier.height(4.dp))
                             Text(card.question, style = MaterialTheme.typography.headlineSmall)
@@ -306,6 +333,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.McqContent(
     question: String,
     options: List<String>,
     correctAnswer: String,
+    image: String?,
     cardKey: Any,
     onAnswer: (Boolean) -> Unit,
 ) {
@@ -314,6 +342,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.McqContent(
     Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
         Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)) {
             Column(modifier = Modifier.padding(24.dp)) {
+                CardImage(image, modifier = Modifier.padding(bottom = 8.dp))
                 Text("MCQ", style = MaterialTheme.typography.labelSmall)
                 Spacer(Modifier.height(4.dp))
                 Text(question, style = MaterialTheme.typography.headlineSmall)

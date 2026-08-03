@@ -317,4 +317,5 @@ private fun CardEntity.toEngineCard() = Card(
     options = Json.decodeFromString(optionsJson),
     tags = Json.decodeFromString(tagsJson),
     weightSeed = weightSeed,
+    image = imageResourceName,
 )

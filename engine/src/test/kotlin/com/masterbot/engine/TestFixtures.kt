@@ -1,6 +1,7 @@
 package com.masterbot.engine
 
 import com.masterbot.engine.model.AdaptationRules
+import com.masterbot.engine.model.GiftCatalog
 import com.masterbot.engine.model.MasterBotIndex
 import java.io.File
 
@@ -14,4 +15,7 @@ object TestFixtures {
 
     fun loadRealIndex(): MasterBotIndex =
         MasterBotIndex.parse(File(repoRoot, "index.json").readText())
+
+    fun loadRealGiftCatalog(): GiftCatalog =
+        GiftCatalog.parse(File(repoRoot, "rules/gift_catalog.yaml").readText())
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-08-02T21:19:06Z",
+  "generated_at": "2026-08-03T02:57:49Z",
   "topic_count": 15,
   "card_count": 112,
   "topics": [
@@ -22,7 +22,8 @@
           "tags": [
             "ohms-law"
           ],
-          "weight_seed": 1.0
+          "weight_seed": 1.0,
+          "image": "diagram_circuit"
         },
         {
           "id": "elec-circ-ohmkirch-002",
@@ -446,7 +447,8 @@
             "imu",
             "sensors"
           ],
-          "weight_seed": 1.0
+          "weight_seed": 1.0,
+          "image": "diagram_imu"
         },
         {
           "id": "elec-sens-imu-002",
@@ -1000,7 +1002,8 @@
             "ros2",
             "communication"
           ],
-          "weight_seed": 1.0
+          "weight_seed": 1.0,
+          "image": "diagram_ros2"
         },
         {
           "id": "it-prog-ros2-002",
@@ -1124,7 +1127,8 @@
             "dc-motor",
             "torque-speed-curve"
           ],
-          "weight_seed": 1.1
+          "weight_seed": 1.1,
+          "image": "diagram_motor"
         },
         {
           "id": "mech-act-dcmotor-002",

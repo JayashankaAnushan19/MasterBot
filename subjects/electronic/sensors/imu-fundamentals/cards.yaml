@@ -10,6 +10,7 @@ cards:
     options: []
     tags: ["imu", "sensors"]
     weight_seed: 1.0
+    image: "diagram_imu"
 
   - id: "elec-sens-imu-002"
     type: "qa"

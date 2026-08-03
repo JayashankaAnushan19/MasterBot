@@ -10,6 +10,7 @@ cards:
     options: []
     tags: ["ohms-law"]
     weight_seed: 1.0
+    image: "diagram_circuit"
 
   - id: "elec-circ-ohmkirch-002"
     type: "qa"

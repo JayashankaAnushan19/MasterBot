@@ -10,6 +10,7 @@ cards:
     options: []
     tags: ["dc-motor", "torque-speed-curve"]
     weight_seed: 1.1
+    image: "diagram_motor"
 
   - id: "mech-act-dcmotor-002"
     type: "qa"

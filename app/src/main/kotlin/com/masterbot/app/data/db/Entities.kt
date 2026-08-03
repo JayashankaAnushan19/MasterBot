@@ -39,6 +39,8 @@ data class CardEntity(
     val optionsJson: String,
     val tagsJson: String,
     val weightSeed: Double,
+    /** Optional Android drawable resource name (see schema/card.schema.json's `image` field). */
+    val imageResourceName: String? = null,
 )
 
 /**
@@ -86,4 +88,20 @@ data class UserProfileEntity(
     @PrimaryKey val id: Int = 0,
     val name: String,
     val notificationsEnabled: Boolean,
+)
+
+/**
+ * One redemption of a gift from rules/gift_catalog.yaml. `usedEpochDay == null` means
+ * still pending -- redeemed with coins but not yet marked as bought/used in real life.
+ * Once set, that redemption is final; the catalog item itself can be redeemed again later.
+ */
+@Entity(tableName = "gift_redemptions")
+data class GiftRedemptionEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val giftId: String,
+    val giftName: String,
+    val giftEmoji: String,
+    val coinCost: Int,
+    val claimedEpochDay: Long,
+    val usedEpochDay: Long?,
 )

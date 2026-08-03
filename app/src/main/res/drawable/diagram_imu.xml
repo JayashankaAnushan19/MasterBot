@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- IMU: sensor body with 3 orientation axes -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <path android:fillColor="#101820" android:pathData="M0,0h120v120h-120z" />
+
+    <!-- Z axis (diagonal, back-left) -->
+    <path android:strokeColor="#BA68C8" android:strokeWidth="3" android:pathData="M60,60 L30,90" />
+    <path android:fillColor="#BA68C8" android:pathData="M28,80 L24,94 L38,90 Z" />
+
+    <!-- Y axis (up) -->
+    <path android:strokeColor="#00E5A0" android:strokeWidth="3" android:pathData="M60,60 L60,20" />
+    <path android:fillColor="#00E5A0" android:pathData="M54,24 L60,10 L66,24 Z" />
+
+    <!-- X axis (right) -->
+    <path android:strokeColor="#4FC3F7" android:strokeWidth="3" android:pathData="M60,60 L100,60" />
+    <path android:fillColor="#4FC3F7" android:pathData="M96,54 L110,60 L96,66 Z" />
+
+    <!-- sensor body -->
+    <path android:fillColor="#00B383" android:pathData="M50,50h20v20h-20z" />
+</vector>

@@ -69,6 +69,11 @@
           "type": "number",
           "minimum": 0,
           "description": "Starting difficulty weight before any answer history."
+        },
+        "image": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$",
+          "description": "Optional. Name of an Android drawable resource shipped with the app (e.g. 'diagram_circuit'), shown above the question. Not every card needs one."
         }
       },
       "allOf": [

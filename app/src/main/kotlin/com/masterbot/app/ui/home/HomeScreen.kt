@@ -72,6 +72,7 @@ fun HomeScreen(
     onStartTodayReview: () -> Unit,
     onStartTopic: (String) -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenRedeem: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -109,6 +110,9 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("MasterBot") },
                 actions = {
+                    IconButton(onClick = onOpenRedeem) {
+                        Text("🎁", style = MaterialTheme.typography.titleLarge)
+                    }
                     IconButton(onClick = onOpenProfile) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
                     }
